@@ -1,0 +1,13 @@
+
+## DISTORTED
+
+/usr/local/fsl/bin/slicer ../mytest_func_distorted2standard standard -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png  
+/usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png ../mytest_func_distorted2standard1.png 
+/usr/local/fsl/bin/slicer standard ../mytest_func_distorted2standard -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png
+/usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png ../mytest_func_distorted2standard2.png
+/usr/local/fsl/bin/pngappend ../mytest_func_distorted2standard1.png - ../mytest_func_distorted2standard2.png ../mytest_func_distorted2standard.png
+/bin/rm -f sl?.png ../mytest_func_distorted2standard1.png ../mytest_func_distorted2standard2.png
+
+## UNDISTORTED
+
+/usr/local/fsl/bin/slicer ../mytest_func_undistorted2standard standard -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ;   /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png ../mytest_func_undistorted2standard1.png ; /usr/local/fsl/bin/slicer standard ../mytest_func_undistorted2standard -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png ../mytest_func_undistorted2standard2.png ; /usr/local/fsl/bin/pngappend ../mytest_func_undistorted2standard1.png - ../mytest_func_undistorted2standard2.png ../mytest_func_undistorted2standard.png ; /bin/rm -f sl?.png ../mytest_func_undistorted2standard1.png ../mytest_func_undistorted2standard2.png

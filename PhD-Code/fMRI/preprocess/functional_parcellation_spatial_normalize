@@ -1,0 +1,10 @@
+#!/usr/bin/csh -f
+
+flirt -in LHR-All-Subjects-Functional-Parcels-Pop-Map-DAN-seed -ref /Applications/freesurfer/subjects/cvs_avg35_inMNI152/mri/orig -applyxfm -usesqform -out DAN-seed-1mm -interp nearestneighbour
+flirt -in LHR-All-Subjects-Functional-Parcels-Pop-Map-VAN-seed -ref /Applications/freesurfer/subjects/cvs_avg35_inMNI152/mri/orig -applyxfm -usesqform -out VAN-seed-1mm -interp nearestneighbour
+flirt -in LHR-All-Subjects-Functional-Parcels-Pop-Map-SMN-seed -ref /Applications/freesurfer/subjects/cvs_avg35_inMNI152/mri/orig -applyxfm -usesqform -out SMN-seed-1mm -interp nearestneighbour
+flirt -in LHR-All-Subjects-Functional-Parcels-Pop-Map-VIS-seed -ref /Applications/freesurfer/subjects/cvs_avg35_inMNI152/mri/orig -applyxfm -usesqform -out VIS-seed-1mm -interp nearestneighbour
+flirt -in LHR-All-Subjects-Functional-Parcels-Pop-Map-FPC-seed -ref /Applications/freesurfer/subjects/cvs_avg35_inMNI152/mri/orig -applyxfm -usesqform -out FPC-seed-1mm -interp nearestneighbour
+flirt -in LHR-All-Subjects-Functional-Parcels-Pop-Map-LAN-seed -ref /Applications/freesurfer/subjects/cvs_avg35_inMNI152/mri/orig -applyxfm -usesqform -out LAN-seed-1mm -interp nearestneighbour
+flirt -in LHR-All-Subjects-Functional-Parcels-Pop-Map-DMN-seed -ref /Applications/freesurfer/subjects/cvs_avg35_inMNI152/mri/orig -applyxfm -usesqform -out DMN-seed-1mm -interp nearestneighbour
+flirt -in LHR-All-Subjects-Functional-Parcels-Pop-Map-AUD-seed -ref /Applications/freesurfer/subjects/cvs_avg35_inMNI152/mri/orig -applyxfm -usesqform -out AUD-seed-1mm -interp nearestneighbour

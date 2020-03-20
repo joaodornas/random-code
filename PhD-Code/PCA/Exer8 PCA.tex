@@ -1,0 +1,125 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{epstopdf}
+\usepackage[dvips]{epsfig}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `basename #1 .tif`.png}
+
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\ba}{\begin{eqnarray*}}
+\newcommand{\ea}{\end{eqnarray*}}
+\newcommand{\by}{\begin{array}}
+\newcommand{\ey}{\end{array}}
+\newcommand{\no}{\nonumber \\}
+\newcommand{\expect}[1]{\langle #1 \rangle}
+\newcommand{\erfc}{\rm erfc}
+\newcommand{\bs}[1]{\boldsymbol #1 }
+\newcommand{\wpp}{w_{_+}}
+\newcommand{\wmm}{w_{_-}}
+
+\def\slfrac#1#2{{\mathord{\mathchoice   % Bruch mit schraegem Bruchstrich
+        {\kern.1em\raise.5ex\hbox{$\scriptstyle#1$}\kern-.1em
+        /\kern-.15em\lower.25ex\hbox{$\scriptstyle#2$}}
+        {\kern.1em\raise.5ex\hbox{$\scriptstyle#1$}\kern-.1em
+        /\kern-.15em\lower.25ex\hbox{$\scriptstyle#2$}}
+        {\kern.1em\raise.4ex\hbox{$\scriptscriptstyle#1$}\kern-.1em
+        /\kern-.14em\lower.25ex\hbox{$\scriptscriptstyle#2$}}
+        {\kern.1em\raise.2ex\hbox{$\scriptscriptstyle#1$}\kern-.1em
+        /\kern-.1em\lower.25ex\hbox{$\scriptscriptstyle#2$}}}}}
+        
+%define local variable "markanswers"
+\newif\ifmarkanswers %default value is "false"
+
+%enable the following line to mark all correct answers
+%\markanswerstrue
+
+
+
+\textwidth = 16 cm
+\textheight = 26 cm
+\oddsidemargin = 0.0 cm
+\evensidemargin = 0.0 cm
+\topmargin = -1.5 cm
+\headheight = 0.0 cm
+\headsep = 0.5 cm
+\parskip = 0.2 cm
+\parindent = 0.0 cm
+
+
+
+\title{\bf Theoretical Neuroscience II\\Exercise 8\\ Principal Component Analysis (PCA)}
+\author{Due date: Thursday, 9 July 2015}
+
+
+\begin{document}
+\maketitle
+
+\section{Motivation}
+
+Principal component analysis is an extremely useful tool for analyzing high-dimensional data.  It identifies correlated sets of variables, so called `principal components' and thereby reduces the dimensionality of the data.  
+
+In this exercise, you will analyze multi-unit activity from a network of spiking neurons.  In such networks, quiescent periods with comparatively little activity are interrupted spontaneously by transient periods of intense collective activity (`bursts').  Your task is to investage the origin of these bursts.  How does excitation spread through the network?  Is there a stereotypical propagation path?  Or does each burst start in a unique way?
+
+
+\section{Principal components analysis}
+
+Given $n$ observations of $m$ variables, each with zero mean, collected in a matrix $\bs X$
+\ba
+\bs X =\left(  \by{cccc} x_{11} & x_{12} \ldots & x_{1n} \\ \vdots & \ddots & \ddots & \vdots \\ x_{m1} & x_{m2} & \ldots & x_{mn} \ey \right)  \in \mathbb{R}^{m \times n}, \qquad\qquad \sum_j \, x_{ij} = 0, \,\, \forall i
+\ea
+and the covariance matrix
+\ba
+\bs C_{\bs X} = \frac{1}{n-1} \, \bs X \, \bs X^T \in \mathbb{R}^{m \times m}
+\ea
+we seek an orthonormal transformation $\bs P  \in \mathbb{R}^{m \times m}$ such that the transformed observations have diagonal covariance:
+\ba
+\bs Y = \bs P \, \bs X  \in \mathbb{R}^{m \times n}, \qquad\qquad \bs C_{\bs Y} = \frac{1}{n-1} \, \bs Y \, \bs Y^T = \left(  \by{cccc} y_{11} & 0 &\ldots & 0 \\ 0 & y_{22} & \ldots & \vdots \\ \vdots & \vdots & \ddots & \vdots \\ 0 & 0 & \ldots & y_{mm} \ey \right) 
+\ea
+
+From the `skinny' singular value decomposition $\bs X^T = \bs U \bs S \bs V^T$, we obtain the left singular vectors $\bs U \in  \mathbb{R}^{n \times n}$, the singular values  $\bs S \in  \mathbb{R}^{n \times m}$, and the right singular vectors $\bs V  \in \mathbb{R}^{m \times m}$.
+
+The desired orthonormal transformation is
+\ba
+\bs P = \bs V^T  \in \mathbb{R}^{m \times m}
+\ea 
+with the {\bf rows} of $\bs P$ being the {\bf principal components}.  The variance captured by each component is revealed by diagonal matrix $\bs S$.  Specifically, element $s_{ii}$ (the $i^{th}$ diagonal element) represents the variance captured by the $i^{th}$ principal component.
+
+\section{Average burst}
+
+Multi-unit-activity is provided in a Matlab-file {\bf MUA\_b\_t\_g}.  After loading this file, you have the number of bursts {\bf Nb}, the number of time points {\bf Nt}, the number of neurons groups {\bf Ng}, the vector of time points {\bf ti}, and the 3d array {\bf MUA\_b\_t\_g} of size {\bf [Nb, Nt, Ng]}, which holds the collective spike rate of each group of neurons for different time points and for different bursts.
+
+Begin by averaging the activity over bursts, to obtain a 2d array {\bf MUA\_g\_t} of size {\bf [Ng, Nt]}!  Note that the variables (neuron groups) do now range over {\it rows}, whereas the observations (time points) now range over columns, in agreement with the matrix $\bs X$ above.
+
+Plot the activity of each group of neurons as a function of time!
+
+Subtract the mean from each row and save the subtracted means for later!
+
+Compute the covariance matrix and plot with Matlab function {\bf pcolor}!
+
+Perform the singular value decomposition (don't forget to transpose the input!), using the Matlab command {\bf [U, S, V] = svd( X' )}!  Plot the diagonal values of {\bf S} with Matlab function {\bf bar}!   How many principal components capture significant variance?
+
+\section{Transformed activity}
+
+Transform the observed activity into the orthonormal space of principal components, beginning with the average over bursts!
+
+Plot the activity of each principal component as a function of time!
+
+Compute the covariance matrix of the transformed activity and plot with Matlab function {\bf pcolor}!  The result should be a diagonal matrix!
+
+Plot the time-dependent activity of the first three principal components, using Matlab function {\bf plot3}! 
+
+Zero the activity of all but the first three principal components and project back into the original space of neuron groups!  Plot this `denoised' activity of each group of neurons as a function of time!
+
+\section{Individual bursts}
+
+Transform the activity of individual bursts into the orthonormal space of principal components!
+
+Plot the time-dependent activity of the first three principal components!  Superimpose all bursts in the same plot, by repeatedly using Matlab function{\bf plot3}! 
+
+
+
+
+\end{document}
+

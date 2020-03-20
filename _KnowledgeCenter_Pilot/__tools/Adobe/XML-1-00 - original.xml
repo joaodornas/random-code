@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Root SYSTEM "MappingTable.dtd">
+<Root File-format="xml-1-00" Menu-name="$IDS_XML_1_0_MENU_NAME" Mac-creator="MSIE" Mac-type="TEXT" Win-suffix="xml" Encode-out="Utf-8-out">
+	<!--
+	ADOBE SYSTEMS INCORPORATED
+	Copyright 2003 Adobe Systems Incorporated
+	All Rights Reserved
+	
+	NOTICE:  This Notice only applies to this file or any portion thereof.
+	Adobe permits you to use, modify, and distribute this file in accordance
+	with the terms and conditions of the Adobe license agreement accompanying
+	it ("Agreement").  Additionally, Adobe grants you a nonexclusive,
+	nontransferable, royalty-free license to use, modify and distribute
+	all or any portion of this file.  Where the terms of this Notice
+	and the terms of the Agreement differ, the terms of this Notice
+	shall control.  All other terms and conditions of the Agreement
+	remain unchanged and have full force and effect.  If you have received
+	this file from a source other than Adobe, then your use, modification,
+	or distribution of it requires the prior written permission of Adobe.
+-->
+	<!-- ===== Defined Proc-lists =====-->
+	<Define-proc-list Name="Arbitrary-user-attributes">
+		<Proc-property>
+			<Emit-string SP-Before="Yes"/>
+			<Property-name/>
+			<Property-type Type="Fixed">
+				<!-- There is no way for PDF to determine "Length" vs "Fixed".-->
+				<!-- There is no way for PDF to determine "Pixels" vs "Fixed".-->
+				<Emit-string>=</Emit-string>
+				<Proc-fixed/>
+			</Property-type>
+			<Property-type Type="Int32">
+				<Emit-string>=</Emit-string>
+				<Proc-integer/>
+			</Property-type>
+			<Property-type Type="Atom">
+				<Emit-string>=&quot;</Emit-string>
+				<Proc-string/>
+				<Emit-string SP-After="Yes">&quot;</Emit-string>
+			</Property-type>
+			<Property-type Type="String">
+				<Emit-string>=&quot;</Emit-string>
+				<Proc-string/>
+				<Emit-string SP-After="Yes">&quot;</Emit-string>
+			</Property-type>
+		</Proc-property>
+	</Define-proc-list>
+	<Define-proc-list Name="User-attributes">
+		<Walk-proplist Owner="XML-1.00" Use-proclist="Arbitrary-user-attributes"/>
+	</Define-proc-list>
+	<Define-proc-list Name="Element-attributes">
+		<Proc-var Pdf-var="ID" Owner="Link" Type="String" Inherit="Not-inherited" Condition="Is-bookmark-target">
+			<Emit-string SP-Before="Yes">id=&quot;</Emit-string>
+			<Proc-string/>
+			<Emit-string>&quot;</Emit-string>
+		</Proc-var>
+		<Proc-var Pdf-var="ActualText" Owner="Structelem" Type="String" Inherit="Not-inherited" Condition="Has-value">
+			<Emit-string SP-Before="Yes">ActualText=&quot;</Emit-string>
+			<Proc-string/>
+			<Emit-string>&quot;</Emit-string>
+		</Proc-var>
+		<Proc-var Pdf-var="Alt" Owner="Structelem" Type="String" Inherit="Not-inherited" Condition="Has-value">
+			<Emit-string SP-Before="Yes">Alt=&quot;</Emit-string>
+			<Proc-string/>
+			<Emit-string>&quot;</Emit-string>
+		</Proc-var>
+		<Proc-var Pdf-var="Lang" Owner="Structelem" Type="String" Inherit="Not-inherited" Condition="Has-value">
+			<Emit-string SP-Before="Yes">xml:lang=&quot;</Emit-string>
+			<Proc-string/>
+			<Emit-string>&quot;</Emit-string>
+		</Proc-var>
+	</Define-proc-list>
+	<!-- ===== Defined Event-list =====-->
+	<Define-event-list Name="bookmark-elements">
+		<Event Inf-type="Bookmark" Name-type="Structure-role" Node-name="BMWrap" Node-content="Bookmark" Event-class="Enter">
+			<Emit-string NL-After="Yes">&lt;bookmark-tree&gt;</Emit-string>
+			<Comment/>
+		</Event>
+		<Event Inf-type="Bookmark" Name-type="Structure-role" Node-name="BMWrap" Node-content="Bookmark" Event-class="Exit">
+			<Emit-string NL-After="Yes">&lt;/bookmark-tree&gt;</Emit-string>
+			<Comment/>
+		</Event>
+		<Event Inf-type="Bookmark" Name-type="Structure-role" Node-name="BMListItem" Node-content="Bookmark" Event-class="Enter">
+			<Emit-string>&lt;bookmark</Emit-string>
+			<Proc-var Pdf-var="Title" Owner="Link" Type="String" Inherit="Not-inherited" Condition="Always">
+				<Emit-string SP-Before="Yes">title=&quot;</Emit-string>
+				<Proc-string Expand-entities="Expand-entities"/>
+				<Emit-string>&quot;</Emit-string>
+			</Proc-var>
+			<Emit-string NL-After="Yes">&gt;</Emit-string>
+		</Event>
+		<Event Inf-type="Bookmark" Name-type="Structure-role" Node-name="BMListItem" Node-content="Bookmark" Event-class="Exit">
+			<Emit-string NL-After="Yes">&lt;/bookmark&gt;</Emit-string>
+		</Event>
+		<Event Inf-type="Bookmark" Name-type="Structure-role" Node-name="BMAnchor" Node-content="Bookmark" Event-class="Enter">
+			<Emit-string>&lt;destination</Emit-string>
+			<Proc-var Pdf-var="HRef" Owner="Link" Type="String" Inherit="Not-inherited" Condition="Always">
+				<Emit-string SP-Before="Yes">structID=&quot;</Emit-string>
+				<Proc-bookmark-target/>
+				<Proc-string Expand-entities="Expand-entities"/>
+				<Emit-string>&quot;</Emit-string>
+			</Proc-var>
+			<Emit-string NL-After="Yes">/&gt;</Emit-string>
+		</Event>
+	</Define-event-list>
+	<Define-proc-list Name="Figure-content">
+		<Emit-string NL-Before="Yes">&lt;ImageData src=&quot;</Emit-string>
+		<Proc-image-content/>
+		<Emit-string NL-After="Yes">&quot;/&gt;</Emit-string>
+		<Conditional-prefix NL-After="Yes">&lt;?xpacket begin=&apos;&#xFEFF;&apos; id='W5M0MpCehiHzreSzNTczkc9d'?&gt;</Conditional-prefix>
+		<Emit-metadata NL-After="Yes"/>
+		<Conditional-suffix NL-After="Yes">&lt;?xpacket end=&apos;r&apos;?&gt;</Conditional-suffix>
+	</Define-proc-list>
+	<Define-event-list Name="content-elements">
+		<!-- ===== MCRef nodes =====-->
+		<Event Inf-type="Pds-mc" Name-type="Any" Node-content="Has-text-only" Event-class="Enter">
+			<Proc-doc-text do-br-substitution="do-xml-br-substitution" Expand-entities="Expand-entities"/>
+		</Event>
+		<!-- ===== Special node handling =====-->
+		<Event Inf-type="Struct-elem" Name-type="Structure-role" Node-name="Span" Node-content="Has-kids" Event-class="Enter">
+			<Evaluate-var Pdf-var="ActualText" Owner="Structelem" Type="String" Inherit="Not-inherited" Condition="Has-value">
+				<Proc-string/>
+			</Evaluate-var>
+			<Evaluate-var Pdf-var="ActualText" Owner="Structelem" Type="String" Inherit="Not-inherited" Condition="No-value">
+				<Walk-children Use-event-list="content-elements"/>
+			</Evaluate-var>
+		</Event>
+		<Event Inf-type="Struct-elem" Name-type="Structure-role" Node-name="Span" Node-content="Has-kids" Event-class="Exit">
+			<Emit-string/>
+			<!-- Avoid dropping through to Any event handler!-->
+		</Event>
+		<Event Inf-type="Struct-elem" Name-type="Structure-role" Node-name="Figure" Alternate-name="Img" Node-content="Has-kids" Event-class="Enter">
+			<Emit-string>&lt;</Emit-string>
+			<Element-name Name-type="Structure-user-label"/>
+			<Call-proc-list Name="Element-attributes"/>
+			<Call-proc-list Name="User-attributes"/>
+			<Emit-string NL-After="Yes">&gt;</Emit-string>
+			<Call-proc-list Name="Figure-content"/>
+			<Walk-children Use-event-list="content-elements"/>
+		</Event>
+		<Event Inf-type="Struct-elem" Name-type="Structure-role" Node-name="Figure" Alternate-name="Img" Node-content="Has-kids" Event-class="Exit">
+			<Emit-string>&lt;/</Emit-string>
+			<Element-name Name-type="Structure-user-label"/>
+			<Emit-string NL-After="Yes">&gt;</Emit-string>
+		</Event>
+		<Event Inf-type="Struct-elem" Name-type="Structure-role" Node-name="Formula" Node-content="Has-kids" Event-class="Enter">
+			<Emit-string>&lt;</Emit-string>
+			<Element-name Name-type="Structure-user-label"/>
+			<Call-proc-list Name="Element-attributes"/>
+			<Call-proc-list Name="User-attributes"/>
+			<Emit-string NL-After="Yes">&gt;</Emit-string>
+			<Walk-children Use-event-list="content-elements"/>
+		</Event>
+		<Event Inf-type="Struct-elem" Name-type="Structure-role" Node-name="Formula" Node-content="Has-kids" Event-class="Exit">
+			<Emit-string>&lt;/</Emit-string>
+			<Element-name Name-type="Structure-user-label"/>
+			<Emit-string NL-After="Yes">&gt;</Emit-string>
+		</Event>
+		<Event Inf-type="Struct-elem" Name-type="Structure-role" Node-name="Form" Node-content="Has-kids" Event-class="Enter">
+			<Evaluate-var Pdf-var="ActualText" Owner="Structelem" Type="String" Inherit="Not-inherited" Condition="Has-value">
+				<Proc-string/>
+			</Evaluate-var>
+			<Evaluate-var Pdf-var="ActualText" Owner="Structelem" Type="String" Inherit="Not-inherited" Condition="No-value">
+				<Walk-children Use-event-list="form-content-elements"/>
+			</Evaluate-var>
+		</Event>
+		<Event Inf-type="Struct-elem" Name-type="Structure-role" Node-name="Form" Node-content="Has-kids" Event-class="Exit">
+			<Emit-string/>
+			<!-- Avoid dropping through to Any event handler!-->
+		</Event>
+		<Event Inf-type="Struct-elem" Name-type="Any" Node-content="Has-kids" Event-class="Enter">
+			<Emit-string NL-Before="Yes">&lt;</Emit-string>
+			<Element-name Name-type="Structure-user-label"/>
+			<Call-proc-list Name="Element-attributes"/>
+			<Call-proc-list Name="User-attributes"/>
+			<Emit-string>&gt;</Emit-string>
+			<Walk-children Use-event-list="content-elements"/>
+		</Event>
+		<Event Inf-type="Struct-elem" Name-type="Any" Node-content="Has-kids" Event-class="Exit">
+			<Emit-string>&lt;/</Emit-string>
+			<Element-name Name-type="Structure-user-label"/>
+			<Emit-string NL-After="Yes">&gt;</Emit-string>
+		</Event>
+		<Event Inf-type="Struct-elem" Name-type="Any" Node-content="Empty" Event-class="Enter">
+			<Emit-string NL-Before="Yes">&lt;</Emit-string>
+			<Element-name Name-type="Structure-user-label"/>
+			<Call-proc-list Name="Element-attributes"/>
+			<Call-proc-list Name="User-attributes"/>
+			<Emit-string NL-After="Yes">/&gt;</Emit-string>
+		</Event>
+	</Define-event-list>
+	<Define-event-list Name="form-content-elements">
+		<Event Inf-type="Obj-ref" Name-type="Structure-role" Node-name="Form" Node-content="Has-text-only" Event-class="Enter">
+			<Proc-doc-text do-br-substitution="do-br-substitution"/>
+		</Event>
+	</Define-event-list>
+	<!-- ===== Fixed info at start of file =====-->
+	<Set-encoding>
+		<Enum-encoding Type="Utf-8-out" Suppress="No" Emit-BOM="No"/>
+		<Enum-encoding Type="Utf-16-out" Suppress="No" Emit-BOM="Yes"/>
+		<Enum-encoding Type="Ucs-4-out" Suppress="No" Emit-BOM="Yes"/>
+		<Enum-encoding Type="Iso-latin-1-out" Suppress="No" Emit-BOM="No"/>
+		<Enum-encoding Type="Html-ascii-out" Suppress="No" Emit-BOM="No"/>
+	</Set-encoding>
+	<Begin-encoding/>
+	<Emit-string>&lt;?xml version=&quot;1.0&quot; encoding=&quot;</Emit-string>
+	<Emit-encoding>
+		<Proc-enum>
+			<Proc-enum-choice Value-in="Utf-8-out" Value-out="UTF-8"/>
+			<Proc-enum-choice Value-in="Utf-16-out" Value-out="UTF-16"/>
+			<Proc-enum-choice Value-in="Ucs-4-out" Value-out="ISO-10646-UCS-4"/>
+			<Proc-enum-choice Value-in="Iso-latin-1-out" Value-out="ISO-8859-1"/>
+			<Proc-enum-choice Value-in="Html-ascii-out" Value-out="US-ASCII"/>
+		</Proc-enum>
+	</Emit-encoding>
+	<Emit-string NL-After="Yes">&quot; ?&gt;</Emit-string>
+	<Emit-string NL-After="Yes">&lt;!-- Created from PDF via Acrobat SaveAsXML --&gt;</Emit-string>
+	<Emit-string NL-After="Yes">&lt;!-- Mapping Table version: 28-February-2003 --&gt;</Emit-string>
+	<Emit-string NL-After="Yes">&lt;TaggedPDF-doc&gt;</Emit-string>
+	<Emit-string NL-After="Yes">&lt;?xpacket begin=&apos;&#xFEFF;&apos; id='W5M0MpCehiHzreSzNTczkc9d'?&gt;</Emit-string>
+	<Emit-doc-metadata NL-After="Yes"/>
+	<Emit-string NL-After="Yes">&lt;?xpacket end=&apos;r&apos;?&gt;</Emit-string>
+	<Walk-bookmarks Use-event-list="bookmark-elements"/>
+	<Walk-structure Use-event-list="content-elements"/>
+	<Emit-string NL-After="Yes">&lt;/TaggedPDF-doc&gt;</Emit-string>
+</Root>

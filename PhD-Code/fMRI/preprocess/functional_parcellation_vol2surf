@@ -1,0 +1,38 @@
+#!/usr/bin/csh -f
+
+
+mri_vol2surf --mov DAN-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi rh --o ./rh.DAN-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+mri_vol2surf --mov VAN-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi rh --o ./rh.VAN-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+mri_vol2surf --mov SMN-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi rh --o ./rh.SMN-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+mri_vol2surf --mov VIS-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi rh --o ./rh.VIS-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+mri_vol2surf --mov FPC-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi rh --o ./rh.FPC-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+mri_vol2surf --mov LAN-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi rh --o ./rh.LAN-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+mri_vol2surf --mov DMN-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi rh --o ./rh.DMN-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+mri_vol2surf --mov AUD-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi rh --o ./rh.AUD-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+
+mri_vol2surf --mov DAN-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi lh --o ./lh.DAN-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+mri_vol2surf --mov VAN-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi lh --o ./lh.VAN-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+mri_vol2surf --mov SMN-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi lh --o ./lh.SMN-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+mri_vol2surf --mov VIS-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi lh --o ./lh.VIS-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+mri_vol2surf --mov FPC-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi lh --o ./lh.FPC-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+mri_vol2surf --mov LAN-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi lh --o ./lh.LAN-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+mri_vol2surf --mov DMN-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi lh --o ./lh.DMN-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+mri_vol2surf --mov AUD-seed-1mm-fl.nii.gz --regheader cvs_avg35_inMNI152 --surf pial --hemi lh --o ./lh.AUD-seed-1mm-fl-surf.mgh --noreshape --interp nearest --float2int round --out_type paint
+
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval lh.DAN-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval lh.DAN-seed-2mm-fl-surf-Colin.mgh --hemi lh
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval lh.VAN-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval lh.VAN-seed-2mm-fl-surf-Colin.mgh --hemi lh
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval lh.SMN-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval lh.SMN-seed-2mm-fl-surf-Colin.mgh --hemi lh
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval lh.VIS-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval lh.VIS-seed-2mm-fl-surf-Colin.mgh --hemi lh
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval lh.FPC-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval lh.FPC-seed-2mm-fl-surf-Colin.mgh --hemi lh
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval lh.LAN-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval lh.LAN-seed-2mm-fl-surf-Colin.mgh --hemi lh
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval lh.DMN-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval lh.DMN-seed-2mm-fl-surf-Colin.mgh --hemi lh
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval lh.AUD-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval lh.AUD-seed-2mm-fl-surf-Colin.mgh --hemi lh
+
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval rh.DAN-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval rh.DAN-seed-2mm-fl-surf-Colin.mgh --hemi rh
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval rh.VAN-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval rh.VAN-seed-2mm-fl-surf-Colin.mgh --hemi rh
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval rh.SMN-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval rh.SMN-seed-2mm-fl-surf-Colin.mgh --hemi rh
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval rh.VIS-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval rh.VIS-seed-2mm-fl-surf-Colin.mgh --hemi rh
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval rh.FPC-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval rh.FPC-seed-2mm-fl-surf-Colin.mgh --hemi rh
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval rh.LAN-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval rh.LAN-seed-2mm-fl-surf-Colin.mgh --hemi rh
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval rh.DMN-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval rh.DMN-seed-2mm-fl-surf-Colin.mgh --hemi rh
+mri_surf2surf --srcsubject cvs_avg35_inMNI152 --srcsurfval rh.AUD-seed-1mm-fl-surf.mgh --trgsubject FS_spm_CanonicalBrain_norecon --trgsurfval rh.AUD-seed-2mm-fl-surf-Colin.mgh --hemi rh

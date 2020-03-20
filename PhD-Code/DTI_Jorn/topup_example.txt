@@ -1,0 +1,21 @@
+################################
+
+#create a folder with all b0 maps of both series (AP and PA) and copy in
+#this all b0-volumes (1 + 7)*2=16 nii-files
+#Than:
+
+fslmerge -t all_b0 *s006*.nii *s008*.nii
+
+#in an other folder with all volumes (b0 and b1500):
+
+fslmerge -t data_bup *s006*.nii
+fslmerge -t data_bdn *s008*.nii
+
+#in the folder with all b0 maps:
+topup --imain=all_b0 --datain=blip_up_dn.txt --config=b02b0.cnf --out=my_output
+applytopup --imain=data_bup,data_bdn --datain=blip_up_dn.txt --inindex=1,9 --topup=my_output --out=data
+fslroi data nodif 0 1
+bet2 nodif nodif_brain -m -f 0.2
+dtifit -k data -o ha96_0543 -m nodif_brain_mask -r *006*bvec -b *006*bval --save_tensor
+
+###############################

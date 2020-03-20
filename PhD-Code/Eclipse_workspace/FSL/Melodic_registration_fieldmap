@@ -1,0 +1,406 @@
+
+
+## SET IMAGE DATA TYPE TO FLOAT AND COPY ORIGINAL FUNCTIONAL IMAGE TO PREFILTERED_FUNC_DATA
+/usr/local/fsl/bin/fslmaths /home/fsl/Dropbox/_DATA/Jorn_dataset/4DrfMRI/4D20150112_123640ep2dpace64dn200286s010a001 prefiltered_func_data -odt float
+Total original volumes = 9
+
+## GET THE MIDDLE VOLUME INSIDE THE PREFILTERED_FUNC_DATA 4-D IMAGE
+/usr/local/fsl/bin/fslroi prefiltered_func_data example_func 4 1
+
+## GET A COPY OF THE MIDDLE VOLUME AS EF_D_EXAMPLE_FUNC
+/usr/local/fsl/bin/fslmaths ../example_func EF_D_example_func
+
+## GET A COPY OF THE ORIGINAL FIELD MAP AS FM_UD_FMAP
+/usr/local/fsl/bin/fslmaths /home/fsl/Dropbox/_DATA/Jorn_dataset/0.Original/Fieldmap_ACPC/fmap_rads FM_UD_fmap
+
+## GET A COPY OF MAGNITUDE FIELD MAP IMAGE WITH BRAIN EXTRACTED AS FM_UD_FMAP_MAG_BRAIN
+/usr/local/fsl/bin/fslmaths /home/fsl/Dropbox/_DATA/Jorn_dataset/0.Original/Fieldmap_ACPC/20150112_123640grefieldmappingdn200286s008a1001_brain FM_UD_fmap_mag_brain
+
+## GET A COPY OF MAGNITUDE FIELD MAP IMAGE AS FM_UD_FMAP_MAG
+/usr/local/fsl/bin/fslmaths /home/fsl/Dropbox/_DATA/Jorn_dataset/0.Original/Fieldmap_ACPC/20150112_123640grefieldmappingdn200286s008a1001  FM_UD_fmap_mag
+
+## GET THE NUMBER OF NON-ZERO VOXELS OF MAGNITUDE FIELD MAP BRAIN EXTRACTED IMAGE
+/usr/local/fsl/bin/fslstats FM_UD_fmap_mag_brain -V | awk '{ print $1 }'
+323933
+
+## GET THE NUMBER OF VOXELS OF MAGNITUDE FIELD MAP BRAIN EXTRACTED IMAGE (WHAT IS THE SECOND NUMBER?)
+/usr/local/fsl/bin/fslstats FM_UD_fmap_mag_brain -v | awk '{ print $1 }'
+1371168
+0.236246
+
+## CREATE A MASK OF MAGNITUDE FIELD MAP BRAIN EXTRACTED IMAGE AS FM_UD_FMAP_MAG_BRAIN_MASK WITH CONDITION (IMAGE > 0), WITH DATA TYPE SHORT 
+/usr/local/fsl/bin/fslmaths FM_UD_fmap_mag_brain -bin FM_UD_fmap_mag_brain_mask -odt short
+
+## GETS THE ABSOLUTE VALUES OF FIELD MAP IMAGE FM_UD_FMAP, BINARISES IT AS (IMAGE > 0), APPLY MASK OF MAGNITUDE FIELD MAP BRAIN EXTRACTED
+## FM_UD_FMAP_MAG_BRAIN_MASK, MULTIPLY BY -1, ADD 1 AND GENERATES AS OUTPUT THE MAGNITUDE FIELD MAP BRAIN EXTRACTED IMAGE INVERTED 
+## FM_UD_FMAP_MAG_BRAIN_MASK_INV BINARISED AS (IMAGE > 0)
+/usr/local/fsl/bin/fslmaths FM_UD_fmap -abs -bin -mas FM_UD_fmap_mag_brain_mask -mul -1 -add 1 -bin FM_UD_fmap_mag_brain_mask_inv
+
+## GETS CLUSTER INFORMATION FROM MAGNITUDE FIELD MAP BRAIN EXTRACTED INVERTED FM_UD_FMAP_MAG_BRAIN_MASK_INV
+## THRESHOLDS THE INPUT IMAGE WITH 0.5
+## --no_table SUPPRESSES PRINTING OF TABLE INFORMATION 
+## GENERATES AS OUTPUT A TABLE REPORTING DIFFERENT CLUSTERS, THEIR SIZE, LOCATION AND CONTENTS
+## IN THE FILE FM_UD_FMAP_MAG_BRAIN_MASK_IDX
+/usr/local/fsl/bin/cluster -i FM_UD_fmap_mag_brain_mask_inv -t 0.5 --no_table -o FM_UD_fmap_mag_brain_mask_idx
+
+## GETS MAXIMUM INTENSITY OF CLUSTER TABLE FM_UD_FMAP_MAG_BRAIN_MASK_IDX
+/usr/local/fsl/bin/fslstats FM_UD_fmap_mag_brain_mask_idx -R | awk '{ print $2 }'
+1277.000000
+
+## THRESHOLDS THE CLUSTER TABLE FM_UD_FMAP_MAG_BRAIN_MASK_IDX USING THE MAXIMUM INTENSITY VALUE
+## BINARISES IT, MULTIPLIES BY -1, ADD 1, APPLIES AS MASK THE MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE FM_UD_FMAP_MAG_BRAIN_MASK
+## AND GIVES THE SAME IMAGE FILE AS OUTPUT
+/usr/local/fsl/bin/fslmaths FM_UD_fmap_mag_brain_mask_idx -thr 1277.000000 -bin -mul -1 -add 1 -bin -mas FM_UD_fmap_mag_brain_mask FM_UD_fmap_mag_brain_mask
+
+## APPLIES MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE FM_UD_FMAP_MAG_BRAIN_MASK AS A MASK TO FIELD MAP IMAGE FM_UD_FMAP
+## OVERRIDS LOWER AND UPPER THRESHOLDS
+## GETS THE 50th PERCENTILE FOR NON-ZERO VOXELS
+/usr/local/fsl/bin/fslstats FM_UD_fmap -k FM_UD_fmap_mag_brain_mask -P 50
+0.623657
+
+## SUBTRACTS THE 50th PERCENTILE VALUE FROM FIELD MAP IMAGE FM_UD_FMAP
+## APPLIES MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE USING (IMAGE > 0)
+## AND SAVES AS OUTPUT THE SAME FILE FIELD MAP IMAGE FM_UD_FMAP
+/usr/local/fsl/bin/fslmaths FM_UD_fmap -sub 0.623657 -mas FM_UD_fmap_mag_brain_mask FM_UD_fmap
+
+## GETS THE 98th PERCENTILE FOR NON-ZERO VOXELS FROM MAGNITUDE FIELD MAP BRAIN EXTRACTED IMAGE FM_UD_FMAP_MAG_BRAIN
+/usr/local/fsl/bin/fslstats FM_UD_fmap_mag_brain -P 98
+480.000000
+
+## APPLIES HALF VALUE OF 98th PERCENTILE THRESHOLD ON MAGNITUDE FIELD MAP BRAIN EXTRACTED IMAGE MF_UD_FMAP_MAG_BRAIN
+## AND GIVES AS OUTPUT A MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE FM_UD_FMAP_MAG_BRAIN_MASK50
+/usr/local/fsl/bin/fslmaths FM_UD_fmap_mag_brain -thr 240 -bin FM_UD_fmap_mag_brain_mask50
+
+## -ero ERODE BY ZEROING NON-ZERO VOXELS WHEN ZERO VOXELS FOUND IN KERNEL
+## -kernel 3D : 3x3x3 box centered on target voxel (set as default kernel)
+## GIVES AS OUTPUT THE MAGNITUDE FIELD MAP BRAIN MASK ERODED IMAGE FM_UD_FMAP_MAG_BRAIN_MASK_ERO
+/usr/local/fsl/bin/fslmaths FM_UD_fmap_mag_brain_mask -ero FM_UD_fmap_mag_brain_mask_ero
+
+## SUM 98th PERCENTILE THRESHOLDED IMAGE TO ERODED IMAGE THRESHOLDED AT 0.5 AND BINARISED
+## AND GIVES AS OUTPUT A MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE
+/usr/local/fsl/bin/fslmaths FM_UD_fmap_mag_brain_mask_ero -add FM_UD_fmap_mag_brain_mask50 -thr 0.5 -bin FM_UD_fmap_mag_brain_mask
+
+## USES THE MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE FM_UD_FMAP_MAG_BRAIN_MASK
+## TO MASK THE FIELD MAP IMAGE FM_UD_FMAP AND GIVES AS OUTPUT THE FIELD MAP IMAGE FM_UD_FMAP
+/usr/local/fsl/bin/fslmaths FM_UD_fmap -mas FM_UD_fmap_mag_brain_mask FM_UD_fmap
+
+## APPLIES THE MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE FM_UD_FMAP_MAG_BRAIN_MASK
+## TO THE MAGNITUDE FIELD MAP BRAIN EXTRACTED IMAGE FM_UD_FMAP_MAG_BRAIN
+## AND GIVES AS OUTPUT THE MAGNITUDE FIELD MAP BRAIN EXTRACTED IMAGE FM_UD_FMAP_MAG_BRAIN
+/usr/local/fsl/bin/fslmaths FM_UD_fmap_mag_brain -mas FM_UD_fmap_mag_brain_mask FM_UD_fmap_mag_brain
+
+## -ero ERODE BY ZEROING NON-ZERO VOXELS WHEN ZERO VOXELS FOUND IN KERNEL
+## -kernel 3D : 3x3x3 box centered on target voxel (set as default kernel)
+## GIVES AS OUTPUT THE MAGNITUDE FIELD MAP BRAIN MASK ERODED IMAGE FM_UD_FMAP_MAG_BRAIN_MASK_ERO
+/usr/local/fsl/bin/fslmaths FM_UD_fmap_mag_brain_mask -ero FM_UD_fmap_mag_brain_mask_ero
+
+## RECEIVES AS INPUT THE FIELD MAP IMAGE FM_UD_FMAP
+## SAVES AS OUTPUT THE FIELD MAP IMAGE FM_UD_FMAP_TMP_FMAPFILT
+## USES AS MASK THE MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE FM_UD_FMAP_MAG_BRAIN_MASK
+## APPLIES A 2-D DE-SPIKING FILTER USING THRESHOLD OF 2.1
+/usr/local/fsl/bin/fugue --loadfmap=FM_UD_fmap --savefmap=FM_UD_fmap_tmp_fmapfilt --mask=FM_UD_fmap_mag_brain_mask --despike --despikethreshold=2.1
+
+## SUBTRACTS FUGUE OUTPUT IMAGE FM_UD_FMAP_TMP_FMAPFILT FROM ORIGINAL FIELD MAP IMAGE
+## USES AS MASK (IMAGE > 0) THE ERODED MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE
+## ADDS AGINA FUGUE OUTPUT IMAGE FM_UD_FMAP_TMP_FMAPFILT FROM ORIGINAL FIELD MAP IMAGE
+## GIVES AS OUTPUT THE FIELD MAP IMAGE FM_UD_FMAP
+/usr/local/fsl/bin/fslmaths FM_UD_fmap -sub FM_UD_fmap_tmp_fmapfilt -mas FM_UD_fmap_mag_brain_mask_ero -add FM_UD_fmap_tmp_fmapfilt FM_UD_fmap
+
+## REMOVES THE FOLLOWING IMAGES
+## FUGUE OUTPUT IMAGE FM_UD_FMAP_TMP_FMAPFILT FROM ORIGINAL FIELD MAP IMAGE
+## ERODED MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE
+## MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE FM_UD_FMAP_MAG_BRAIN_MASK50
+/bin/rm -f FM_UD_fmap_tmp_fmapfilt* FM_UD_fmap_mag_brain_mask_ero* FM_UD_fmap_mag_brain_mask50* FM_UD_fmap_mag_brain_i*
+
+## APPLIES AS MAKS THE MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE ON FIELD MAP IMAGE
+## OVERRIDES LOWER AND UPPER THRESHOLDS
+## OUTPUTS THE 50th PERCENTILE
+/usr/local/fsl/bin/fslstats FM_UD_fmap -k FM_UD_fmap_mag_brain_mask -P 50
+0.623535
+
+## SUBTRACTS THE 50th PERCENTILE FROM FIELD MAP IMAGE
+## APPLIES AS MASK (IMAGE > 0) THE MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE
+## GIVES AS OUTPUT THE FIELD MAP IMAGE
+/usr/local/fsl/bin/fslmaths FM_UD_fmap -sub 0.623535 -mas FM_UD_fmap_mag_brain_mask FM_UD_fmap
+
+## OUTPUTS THE MINIMUM INTENSITY FROM THE FIELD MAP IMAGE
+/usr/local/fsl/bin/fslstats FM_UD_fmap -R | awk '{ print $1 }'
+-1098.728516
+
+## SUBTRACTS THE MINIMUM INTENSITY FROM THE FIELD MAP IMAGE
+## ADDS 10 TO THE FIELD MAP IMAGE
+## APPLIES AS MASK THE MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE
+## GIVES AS OUTPUT IMAGE CALLED GROT
+/usr/local/fsl/bin/fslmaths FM_UD_fmap -sub -1098.728516 -add 10 -mas FM_UD_fmap_mag_brain_mask grot
+
+## SET LOWER THRESHOLD EQUAL TO 1
+## OUTPUTS THE 0.1th AND 95th PERCENTILE
+/usr/local/fsl/bin/fslstats grot -l 1 -p 0.1 -p 95
+549.387207 1272.103516
+
+## COMBINES TWO INPUT IMAGES AND GIVES AS OUTPUT A COLOR RENDERED IMAGE
+## -a AUTOMATIC ESTIMATION OF BACKGROUND DISPLAY RANGE
+## 0 0 <COLOR_TYPE = SOLID> <OUTPUT_TYPE = FLOATING POINT>
+## MAGNITUDE FIELD MAP IMAGE FM_UD_FMAP_MAG AS BACKGROUND IMAGE
+## GROT IMAGE AS STAT_IMAGE_1
+## 549.387207 AS <S1_MIN>
+## 1272.103516 AS <S1_MAX>
+## FMAP+MAG IS THE OUTPUT IMAGE
+/usr/local/fsl/bin/overlay 0 0 FM_UD_fmap_mag -a grot 549.387207 1272.103516 fmap+mag
+
+## TAKES SLICES IMAGES FROM FMAP+MAG IMAGE
+## APPEND SLICES IMAGES ON A SINGLE IMAGE
+## REMOVE SLLICES IMAGES
+/usr/local/fsl/bin/slicer fmap+mag -s 3 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png fmap+mag.png; rm sl?.png
+
+## SIGLOSS ESTIMATES SIGNAL LOSS FROM A FIELD MAP (IN RAD/S)
+## INPUT IS THE FIELD MAP IMAGE FM_UD_FMAP
+## --te IS THE ECHO TIME
+## MASKS THE INPUT USING THE MAGNITUDE FIELD MAP BRAIN EXTRACTED MASK IMAGE
+## OUTPUTS SIGNAL LOSS FIELD MAP IMAGE FM_UD_FMAP_SIGLOSS
+/usr/local/fsl/bin/sigloss -i FM_UD_fmap --te=0.03 -m FM_UD_fmap_mag_brain_mask -s FM_UD_fmap_sigloss
+
+## MULTIPLIES THE SIGNAL LOSS FIELD MAP IMAGE FM_UD_FMAP_SIGLOSS WITH THE MAGNITUDE FIELD MAP BRAIN EXTRACTED IMAGE FM_UD_FMAP_MAG_BRAIN
+## OUTPUTS A MAGNITUDE FIELD MAP BRAIN EXTRACTED SIGNAL LOSSED IMAGE FM_UD_FMAP_MAG_BRAIN_SIGLOSSED WITH FLOAT
+/usr/local/fsl/bin/fslmaths FM_UD_fmap_sigloss -mul FM_UD_fmap_mag_brain FM_UD_fmap_mag_brain_siglossed -odt float
+
+## THRESHOLDS FIELD MAP SIGNAL LOSS IMAGE AND GIVES THE SAME IMAGE AS OUTPUT
+/usr/local/fsl/bin/fslmaths FM_UD_fmap_sigloss -thr 0.9 FM_UD_fmap_sigloss -odt float
+
+## COMBINES TWO INPUT IMAGES AND GIVES AS OUTPUT A COLOR RENDERED IMAGE
+## 1 0 <COLOR_TYPE = TRANSPARENT COLORS> <OUTPUT_TYPE = INTEGER>
+## MAGNITUDE FIELD MAP BRAIN EXTRACTED IMAGE FM_UD_FMAP_MAG_BRAIN AS BACKGROUND IMAGE
+## -a AUTOMATIC ESTIMATION OF BACKGROUND DISPLAY RANGE
+## FIELD MAP SIGNAL LOSS IMAGE FM_UD_FMAP_SIGLOSS AS STAT_IMAGE_1
+## 0 AS <S1_MIN>
+## 1 AS <S1_MAX>
+## FM_UD_SIGLOSS+MAG IS THE OUTPUT IMAGE
+/usr/local/fsl/bin/overlay 1 0 FM_UD_fmap_mag_brain -a FM_UD_fmap_sigloss 0 1 FM_UD_sigloss+mag
+
+## TAKES SLICES IMAGES FROM FM_UD_SIGLOSS+MAG IMAGE
+## APPEND SLICES IMAGES ON A SINGLE IMAGE
+## REMOVE SLLICES IMAGES
+/usr/local/fsl/bin/slicer FM_UD_sigloss+mag -s 3 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png FM_UD_sigloss+mag.png; rm sl?.png
+
+## COPIES ORIGINAL ANATOMICAL BRAIN EXTRACTED IMAGE AS HIGHRES IMAGE
+/usr/local/fsl/bin/fslmaths /home/fsl/Dropbox/_DATA/Jorn_dataset/0.Original/MPRAGE_1mm/o20150112_123640T1MPRAGEsag1mmisop2dn200286s003a1001_brain highres
+
+## COPIES ORIGINAL ANATOMICAL IMAGE AS HIGHRES_HEAD IMAGE
+/usr/local/fsl/bin/fslmaths /home/fsl/Dropbox/_DATA/Jorn_dataset/0.Original/MPRAGE_1mm/o20150112_123640T1MPRAGEsag1mmisop2dn200286s003a1001  highres_head
+
+## COPIES ORIGINAL CANONICAL MONTREAL TEMPLATE ANATOMICAL BRAIN EXTRACTED IMAGE AS STANDARD IMAGE
+/usr/local/fsl/bin/fslmaths /usr/local/fsl/data/standard/MNI152_T1_2mm_brain standard
+
+## COPIES ORIGINAL CANONICAL MONTREAL TEMPLATE ANATOMICAL IMAGE AS STANDARD_HEAD IMAGE
+/usr/local/fsl/bin/fslmaths /usr/local/fsl/data/standard/MNI152_T1_2mm standard_head
+
+## COPIES ORIGINAL CANONICAL MONTREAL TEMPLATE ANATOMICAL BINARY MASK IMAGE AS STANDARD_MASK
+/usr/local/fsl/bin/fslmaths /usr/local/fsl/data/standard/MNI152_T1_2mm_brain_mask_dil standard_mask
+
+did not find file: example_func2highres.mat. Generating transform.
+
+## EPI_REG IS USED TO REGISTER EPI IMAGES (FUNCTIONAL OR DIFFUSION) TO STRUCTURAL (T1-WEIGHTED) IMAGES
+## --t1=<WHOLEHEAD T1 IMAGE>
+## --t1brain=<BRAIN EXTRACTED T1 IMAGE>
+## --out=<OUTPUT NAME>
+## --fmap=<FIELD MAP IMAGE>
+## --fmapmag=<FIELD MAP MAGNITUDE IMAGE - WHOLEHEAD EXTRACTED>
+## --fmapmagbrain=<FIELD MAP MAGNITUDE IMAGE - BRAIN EXTRACTED>
+## --echospacing=<EPI ECHO SPACING IN SECONDS>
+## --pedir=<PHASE ENCODING DIRECTION (X/Y/Z/-X/-Y/-Z>
+/usr/local/fsl/bin/epi_reg --epi=example_func --t1=highres_head --t1brain=highres --out=example_func2highres --fmap=unwarp/FM_UD_fmap --fmapmag=unwarp/FM_UD_fmap_mag --fmapmagbrain=unwarp/FM_UD_fmap_mag_brain --echospacing=0.0001633 --pedir=y-
+Running FAST segmentation FLIRT pre-alignment Registering fieldmap to structural Running BBR with fieldmap Applying POWELL correction finit, fend, fextrap = 0.378739 , 0.378278 , 0.377975 fval = 0.37774 0.377333 0.999927 -0.001413 0.012019 0.000000 0.001435 0.999997 -0.001811 0.000000 -0.012017 0.001828 0.999926 0.000000 1.825155 0.413629 3.069742 1.000000 Making warp fields and applying registration to EPI series
+
+## MOVES FILE CHANGING ITS NAME
+mv example_func2highres_fieldmap2str.mat unwarp/FM_UD_fmap_mag_brain2str.mat
+
+## MOVES FILE CHANGING ITS NAME
+mv example_func2highres_fieldmaprads2epi.mat unwarp/FM_UD_fmap2epi.mat
+
+## MOVES FILE CHANGING ITS NAME
+/usr/local/fsl/bin/immv example_func2highres_fieldmaprads2epi_shift unwarp/FM_UD_fmap2epi_shift
+
+## MOVES FILE CHANGING ITS NAME
+/usr/local/fsl/bin/immv example_func2highres_fieldmap2str unwarp/FM_UD_fmap_mag_brain2str
+
+## OUTPUTS <MIN INTENSITY> <MAX INTENSITY> <1th PERCENTILE> <99th PERCENTILE> (FOR NON-ZERO VOXELS)
+/usr/local/fsl/bin/fslstats FM_UD_fmap2epi_shift -R -P 1 -P 99
+-2.193493 2.989276 -1.010054 1.065711
+
+## APPLIES AFFINE TRANSFORMATION
+## -ref: REFERENCE IMAGE
+## -in: INPUT
+## -applyxfm: -init: SAVED TRANSFORMATION -out: OUTPUT VOLUME
+/usr/local/fsl/bin/flirt -ref ../example_func -in FM_UD_fmap_mag_brain -applyxfm -init FM_UD_fmap2epi.mat -out EF_UD_fmap_mag_brain
+
+## MULTIPLIES INPUT BY -1
+/usr/local/fsl/bin/fslmaths FM_UD_fmap2epi_shift -mul -1 grot
+
+## COMBINES TWO INPUT IMAGES AND GIVES AS OUTPUT A COLOR RENDERED IMAGE
+## 1 0 <COLOR_TYPE = TRANSPARENT COLORS> <OUTPUT_TYPE = INTEGER>
+## MAGNITUDE FIELD MAP BRAIN EXTRACTED IMAGE FM_UD_FMAP_MAG_BRAIN AS BACKGROUND IMAGE
+## -a AUTOMATIC ESTIMATION OF BACKGROUND DISPLAY RANGE
+## FM_UD_FMAP2EPI_SHIFT AS STAT_IMAGE_1
+## 0.0001 AS <S1_MIN>
+## 1.065711 AS <S1_MAX>
+## GROT AS STAT_IMAGE_2
+## 0.0001 AS <S2_MIN>
+## 1.01005 AS <S2_MAX>
+## EF_UD_SHIFT+MAG IS THE OUTPUT IMAGE
+/usr/local/fsl/bin/overlay 1 0 EF_UD_fmap_mag_brain -a FM_UD_fmap2epi_shift 0.0001 1.065711 grot 0.0001 1.01005 EF_UD_shift+mag
+
+## TAKES SLICES IMAGES FROM EF_UD_SHIFT+MAG IMAGE
+## APPEND SLICES IMAGES ON A SINGLE IMAGE
+## REMOVE SLLICES IMAGES
+/usr/local/fsl/bin/slicer EF_UD_shift+mag -s 3 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png EF_UD_shift+mag.png; rm sl?.png
+
+## COPIES FILE CHANGING ITS NAME
+/bin/cp /usr/local/fsl/etc/luts/ramp.gif .ramp.gif
+
+## COPIES FILE CHANGING ITS NAME
+/bin/cp /usr/local/fsl/etc/luts/ramp2.gif .ramp2.gif
+
+## COMBINES TWO INPUT IMAGES AND GIVES AS OUTPUT A COLOR RENDERED IMAGE
+## 0 0 <COLOR_TYPE = TRANSPARENT COLORS> <OUTPUT_TYPE = INTEGER>
+## FM_UD_FMAP_MAG_BRAIN2STR AS BACKGROUND IMAGE
+## -a AUTOMATIC ESTIMATION OF BACKGROUND DISPLAY RANGE
+## EXAMPLE_FUNC2HIGHRES_FAST_WMEDGE AS STAT_IMAGE_1
+## 0.001 AS <S1_MIN>
+## 5 AS <S1_MAX>
+## FIELDMAP2EDGES IS THE OUTPUT IMAGE
+overlay 0 0 FM_UD_fmap_mag_brain2str -a ../example_func2highres_fast_wmedge 0.001 5 fieldmap2edges
+
+## TAKES SLICES IMAGES FROM FIELDMAP2EDGES IMAGE
+## APPEND SLICES IMAGES ON A SINGLE IMAGE
+## REMOVE SLLICES IMAGES
+/usr/local/fsl/bin/slicer fieldmap2edges -s 3 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png fieldmap2edges.png; rm sl?.png
+
+## TAKES SLICES IMAGES FROM FM_UD_FMAP_MAG_BRAIN2STR AND HIGHRES IMAGE
+## APPEND SLICES IMAGES ON A SINGLE IMAGE
+## REMOVE SLLICES IMAGES
+/usr/local/fsl/bin/slicer FM_UD_fmap_mag_brain2str ../highres -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png FM_UD_fmap_mag_brain2str1.png ; /usr/local/fsl/bin/slicer ../highres FM_UD_fmap_mag_brain2str -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png FM_UD_fmap_mag_brain2str2.png ; /usr/local/fsl/bin/pngappend FM_UD_fmap_mag_brain2str1.png - FM_UD_fmap_mag_brain2str2.png FM_UD_fmap_mag_brain2str.png; /bin/rm -f sl?.png FM_UD_fmap_mag_brain2str2.png
+
+## REMOVES A IMAGE
+/bin/rm FM_UD_fmap_mag_brain2str1.png
+
+## APPLIES AFFINE TRANSFORMATION
+## -ref: REFERENCE IMAGE
+## -in: INPUT
+## -out: OUTPUT VOLUME WHERE THE TRANSFORM IS APPLIED TO THE INPUT VOLUME TO ALIGN IT WITH THE REFERENCE VOLUME
+## -applyxfm: -init: SAVED TRANSFORMATION -out: OUTPUT VOLUME
+## -interp: INTERPOLATION METHODS
+/usr/local/fsl/bin/flirt -ref ../highres -in ../example_func -out example_func_distorted2highres -applyxfm -init ../example_func2highres.mat -interp trilinear
+
+## TAKES SLICES IMAGES FROM EXAMPLE_FUNC_DISTORTED2HIGHRES AND HIGHRES IMAGE
+## APPEND SLICES IMAGES ON A SINGLE IMAGE
+## REMOVE SLLICES IMAGES
+/usr/local/fsl/bin/slicer example_func_distorted2highres ../highres -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func_distorted2highres1.png ; /usr/local/fsl/bin/slicer ../highres example_func_distorted2highres -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func_distorted2highres2.png ; /usr/local/fsl/bin/pngappend example_func_distorted2highres1.png - example_func_distorted2highres2.png example_func_distorted2highres.png; /bin/rm -f sl?.png example_func_distorted2highres2.png
+
+## REMOVES THE IMAGE
+/bin/rm example_func_distorted2highres1.png
+
+## TAKES SLICES IMAGES FROM EXAMPLE_FUNC2HIGHRES AND HIGHRES IMAGE
+## APPEND SLICES IMAGES ON A SINGLE IMAGE
+## REMOVE SLLICES IMAGES
+/usr/local/fsl/bin/slicer ../example_func2highres ../highres -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png ../example_func2highres1.png ; /usr/local/fsl/bin/slicer ../highres ../example_func2highres -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png ../example_func2highres2.png ; /usr/local/fsl/bin/pngappend ../example_func2highres1.png - ../example_func2highres2.png ../example_func2highres.png; /bin/rm -f sl?.png ../example_func2highres2.png
+
+## REMOVES THE IMAGE
+/bin/rm ../example_func2highres1.png
+
+## INVERT AFFINE TRANSFORMATION
+/usr/local/fsl/bin/convert_xfm -inverse -omat highres2example_func.mat ../example_func2highres.mat 
+
+## APPLIES WARP
+## -i: IMAGE TO WHICH THE WARPS SHOULD BE APPLIED
+## -r: TARGET SPACE IMAGE
+## --premat: AFFINE TRANSFORM PRIOR TO NON-LINEAR WARPING
+## -o: OUTPUT IMAGE
+/usr/local/fsl/bin/applywarp -i ../example_func2highres -r ../example_func --premat=highres2example_func.mat -o example_func_undistorted
+
+## COMBINES TWO INPUT IMAGES AND GIVES AS OUTPUT A COLOR RENDERED IMAGE
+## 0 0 <COLOR_TYPE = TRANSPARENT COLORS> <OUTPUT_TYPE = INTEGER>
+## EXAMPLE_FUNC_DISTORTED2HIGHRES AS BACKGROUND IMAGE
+## -a AUTOMATIC ESTIMATION OF BACKGROUND DISPLAY RANGE
+## EXAMPLE_FUNC2HIGHRES_FAST_WMEDGE AS STAT_IMAGE_1
+## 0.001 AS <S1_MIN>
+## 10 AS <S1_MAX>
+## GROT IS THE OUTPUT IMAGE
+/usr/local/fsl/bin/overlay  0 0 example_func_distorted2highres -a ../example_func2highres_fast_wmedge 0.001 10 grot
+
+## TAKES SLICES IMAGES FROM GROT IMAGE
+## APPEND SLICES IMAGES ON A SINGLE IMAGE
+## REMOVE SLLICES IMAGES
+/usr/local/fsl/bin/slicer grot   -s 3 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png EF_D_edges.gif
+
+## COMBINES TWO INPUT IMAGES AND GIVES AS OUTPUT A COLOR RENDERED IMAGE
+## 0 0 <COLOR_TYPE = TRANSPARENT COLORS> <OUTPUT_TYPE = INTEGER>
+## EXAMPLE_FUNC2HIGHRES AS BACKGROUND IMAGE
+## -a AUTOMATIC ESTIMATION OF BACKGROUND DISPLAY RANGE
+## EXAMPLE_FUNC2HIGHRES_FAST_WMEDGE AS STAT_IMAGE_1
+## 0.001 AS <S1_MIN>
+## 10 AS <S1_MAX>
+## GROT IS THE OUTPUT IMAGE
+/usr/local/fsl/bin/overlay  0 0 ../example_func2highres -a ../example_func2highres_fast_wmedge 0.001 10 grot
+
+## TAKES SLICES IMAGES FROM GROT IMAGE
+## APPEND SLICES IMAGES ON A SINGLE IMAGE
+## REMOVE SLLICES IMAGES
+/usr/local/fsl/bin/slicer grot    -s 3 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png EF_U_edges.gif
+
+## CREATES GIF ANIMATION
+/usr/local/fsl/bin/whirlgif -o EF_UD_movie.gif -time 50 -loop 0 EF_D_edges.gif EF_U_edges.gif 2>&1; /bin/rm -f sla* slb* slc* sld* sle* slf* slg* slh* sli* slj* slk* sll* grot*
+whirlgif Rev 3.04 (c) 1997-1999 by Hans Dinsen-Hansen (c) 1995-1996 by Kevin Kadow (c) 1990-1993 by Mark Podlipec Processed 2 files.
+
+## COPIES IMAGE CHANGING ITS NAME
+/usr/local/fsl/bin/imcp example_func_undistorted ../example_func
+
+## INVERT AFFINE TRANSFORMATION
+/usr/local/fsl/bin/convert_xfm -inverse -omat highres2example_func.mat example_func2highres.mat
+
+## TAKES SLICES IMAGES FROM EXAMPLE_FUNC2HIGHRES AND HIGHRES IMAGE
+## APPEND SLICES IMAGES ON A SINGLE IMAGE
+## REMOVE SLLICES IMAGES
+/usr/local/fsl/bin/slicer example_func2highres highres -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func2highres1.png ; /usr/local/fsl/bin/slicer highres example_func2highres -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func2highres2.png ; /usr/local/fsl/bin/pngappend example_func2highres1.png - example_func2highres2.png example_func2highres.png; /bin/rm -f sl?.png example_func2highres2.png
+
+## REMOVES IMAGE
+/bin/rm example_func2highres1.png
+
+did not find file: highres2standard.mat. Generating transform.
+
+/usr/local/fsl/bin/flirt -in highres -ref standard -out highres2standard -omat highres2standard.mat -cost corratio -dof 12 -searchrx -90 90 -searchry -90 90 -searchrz -90 90 -interp trilinear 
+
+
+/usr/local/fsl/bin/fnirt --iout=highres2standard_head --in=highres_head --aff=highres2standard.mat --cout=highres2standard_warp --iout=highres2standard --jout=highres2highres_jac --config=T1_2_MNI152_2mm --ref=standard_head --refmask=standard_mask --warpres=10,10,10
+
+
+/usr/local/fsl/bin/applywarp -i highres -r standard -o highres2standard -w highres2standard_warp
+
+
+/usr/local/fsl/bin/convert_xfm -inverse -omat standard2highres.mat highres2standard.mat
+
+
+/usr/local/fsl/bin/slicer highres2standard standard -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png highres2standard1.png ; /usr/local/fsl/bin/slicer standard highres2standard -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png highres2standard2.png ; /usr/local/fsl/bin/pngappend highres2standard1.png - highres2standard2.png highres2standard.png; /bin/rm -f sl?.png highres2standard2.png
+
+
+/bin/rm highres2standard1.png
+
+
+/usr/local/fsl/bin/convert_xfm -omat example_func2standard.mat -concat highres2standard.mat example_func2highres.mat
+
+
+/usr/local/fsl/bin/convertwarp --ref=standard --premat=example_func2highres.mat --warp1=highres2standard_warp --out=example_func2standard_warp
+
+
+/usr/local/fsl/bin/applywarp --ref=standard --in=example_func --out=example_func2standard --warp=example_func2standard_warp
+
+
+/usr/local/fsl/bin/convert_xfm -inverse -omat standard2example_func.mat example_func2standard.mat
+
+
+/usr/local/fsl/bin/slicer example_func2standard standard -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func2standard1.png ; /usr/local/fsl/bin/slicer standard example_func2standard -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; /usr/local/fsl/bin/pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func2standard2.png ; /usr/local/fsl/bin/pngappend example_func2standard1.png - example_func2standard2.png example_func2standard.png; /bin/rm -f sl?.png example_func2standard2.png
+
+
+/usr/local/fsl/bin/imcp ../example_func ../example_func_distorted
+
+
+/usr/local/fsl/bin/imcp example_func ../example_func

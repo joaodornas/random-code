@@ -1,0 +1,30 @@
+#!/usr/bin/csh -f
+
+set func_data = 20150508_100617BOLDfMRI2x2x303p3run1s003a001
+
+set nVolumes = 331
+
+fslsplit  $func_data vol
+
+set j = 0
+
+while ( $j < $nVolumes )
+
+	if ( $j < 10 ) then
+		set iVolume = 000$j
+	else if ( $j >= 10 && $j < 100 ) then
+		set iVolume = 00$j
+	else if ( $j >= 100 ) then
+		set iVolume = 0$j
+	endif
+	
+	applywarp -i vol$iVolume -o grot$iVolume --premat=../Melodic-Fieldmap.ica/mc/prefiltered_func_data_mcf.mat/MAT_$iVolume -w ../Melodic-Fieldmap.ica/reg/example_func2highres_warp.nii.gz -r ../Melodic-Fieldmap.ica/example_func --rel --postmat=../Melodic-Fieldmap.ica/reg/highres2example_func.mat --interp=spline
+
+	@ j++
+	
+end
+
+fslmerge -t $func_data{_unwarp} grot0000   grot0001   grot0002   grot0003   grot0004   grot0005   grot0006   grot0007   grot0008   grot0009   grot0010   grot0011   grot0012   grot0013   grot0014   grot0015   grot0016   grot0017   grot0018   grot0019   grot0020   grot0021   grot0022   grot0023   grot0024   grot0025   grot0026   grot0027   grot0028   grot0029   grot0030   grot0031   grot0032   grot0033   grot0034   grot0035   grot0036   grot0037   grot0038   grot0039   grot0040   grot0041   grot0042   grot0043   grot0044   grot0045   grot0046   grot0047   grot0048   grot0049   grot0050   grot0051   grot0052   grot0053   grot0054   grot0055   grot0056   grot0057   grot0058   grot0059   grot0060   grot0061   grot0062   grot0063   grot0064   grot0065   grot0066   grot0067   grot0068   grot0069   grot0070   grot0071   grot0072   grot0073   grot0074   grot0075   grot0076   grot0077   grot0078   grot0079   grot0080   grot0081   grot0082   grot0083   grot0084   grot0085   grot0086   grot0087   grot0088   grot0089   grot0090   grot0091   grot0092   grot0093   grot0094   grot0095   grot0096   grot0097   grot0098   grot0099   grot0100   grot0101   grot0102   grot0103   grot0104   grot0105   grot0106   grot0107   grot0108   grot0109   grot0110   grot0111   grot0112   grot0113   grot0114   grot0115   grot0116   grot0117   grot0118   grot0119   grot0120   grot0121   grot0122   grot0123   grot0124   grot0125   grot0126   grot0127   grot0128   grot0129   grot0130   grot0131   grot0132   grot0133   grot0134   grot0135   grot0136   grot0137   grot0138   grot0139   grot0140   grot0141   grot0142   grot0143   grot0144   grot0145   grot0146   grot0147   grot0148   grot0149   grot0150   grot0151   grot0152   grot0153   grot0154   grot0155   grot0156   grot0157   grot0158   grot0159   grot0160   grot0161   grot0162   grot0163   grot0164   grot0165   grot0166   grot0167   grot0168   grot0169   grot0170   grot0171   grot0172   grot0173   grot0174   grot0175   grot0176   grot0177   grot0178   grot0179   grot0180   grot0181   grot0182   grot0183   grot0184   grot0185   grot0186   grot0187   grot0188   grot0189   grot0190   grot0191   grot0192   grot0193   grot0194   grot0195   grot0196   grot0197   grot0198   grot0199   grot0200   grot0201   grot0202   grot0203   grot0204   grot0205   grot0206   grot0207   grot0208   grot0209   grot0210   grot0211   grot0212   grot0213   grot0214   grot0215   grot0216   grot0217   grot0218   grot0219   grot0220   grot0221   grot0222   grot0223   grot0224   grot0225   grot0226   grot0227   grot0228   grot0229   grot0230   grot0231   grot0232   grot0233   grot0234   grot0235   grot0236   grot0237   grot0238   grot0239   grot0240   grot0241   grot0242   grot0243   grot0244   grot0245   grot0246   grot0247   grot0248   grot0249   grot0250   grot0251   grot0252   grot0253   grot0254   grot0255   grot0256   grot0257   grot0258   grot0259   grot0260   grot0261   grot0262   grot0263   grot0264   grot0265   grot0266   grot0267   grot0268   grot0269   grot0270   grot0271   grot0272   grot0273   grot0274   grot0275   grot0276   grot0277   grot0278   grot0279   grot0280   grot0281   grot0282   grot0283   grot0284   grot0285   grot0286   grot0287   grot0288   grot0289   grot0290   grot0291   grot0292   grot0293   grot0294   grot0295   grot0296   grot0297   grot0298   grot0299   grot0300   grot0301   grot0302   grot0303   grot0304   grot0305   grot0306   grot0307   grot0308   grot0309   grot0310   grot0311   grot0312   grot0313   grot0314   grot0315   grot0316   grot0317   grot0318   grot0319   grot0320   grot0321   grot0322   grot0323   grot0324   grot0325   grot0326   grot0327   grot0328   grot0329   grot0330
+
+rm -f grot* vol*
+

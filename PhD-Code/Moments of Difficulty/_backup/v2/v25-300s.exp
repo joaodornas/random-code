@@ -1,0 +1,134 @@
+%% General
+Settings.Subject= 'v25-300s';
+Settings.BlockN= 1;
+Settings.Trials= 5;
+Settings.OnsetDelay= [0.5 1];
+Settings.PauseBtwBlocks = 30; %% in seconds
+
+%% fMRI
+Settings.fMRI.TR = 2; %% seconds
+Settings.fMRI.hidDeviceID = 0;
+Settings.fMRI.SyncToTTL = true;
+
+%% Trial Schedule
+Settings.Schedule.Warning= 1;
+Settings.Schedule.TargetCue= 2;
+Settings.Schedule.Tracking= 0.4;
+Settings.Schedule.ProbeCue= 2;
+Settings.Schedule.Feedback= 2;
+
+%% Stimulus
+Settings.MOT.DurationInMinutes = 5;
+Settings.MOT.Duration= 60 * Settings.MOT.DurationInMinutes; %% in seconds
+Settings.MOT.Oversample= 10; %% should oversample for smoother motion
+Settings.MOT.TotalN= 12;
+Settings.MOT.TargetN= 3;
+Settings.MOT.Delay= 1;%% in seconds
+Settings.MOT.Message= 'Please track cued targets';
+Settings.MOT.v0 = 25;   % mean translational velocity, in pixels per second  % pix
+Settings.MOT.o0 = 0;   % mean angular velocity, in radians per second
+Settings.MOT.sigma_v = 10.0; % standard deviation of radial velocity per root of time-ste % pix
+Settings.MOT.sigma_o = 0.5; % standard deviation of angular velocity per root of time-ste
+Settings.MOT.RepulsionRadius = 50;   % radius of repulsive interactions % pix
+Settings.MOT.RepulsionK = 10000;   % strength of repulsive interactions % pix^2
+Settings.MOT.Area.Size= [400 400];  % pix
+Settings.MOT.Area.Contour.Color = [255 255 255];
+Settings.MOT.Area.Contour.Width = 1;
+Settings.MOT.Target.Diameter= 20;  % pix
+Settings.MOT.Cue.Width= 25 ;  % pix
+Settings.MOT.Target.NumOfDifferentColors=2;% Amount of different colors in one run
+Settings.MOT.Target.NumOfBallsPerColor=6;
+%Settings.MOT.Target.AllRGB=[ 200 30 30; 250 150 30; 30 150 30; 50 50 255];
+Settings.MOT.Target.AllRGB=[ 200 30 30; 250 150 30];
+Settings.MOT.Target.Label.Color = [255 255 255];
+Settings.MOT.Cue.RGB= [255 255 255];
+Settings.MOT.Probe.RGB= [155 255 0];
+Settings.MOT.Target.SelectedColor = 1;
+
+%% Events : Thresholds
+Settings.Events.AreaThreshold = 0.025; %% has to be this percentage of the maximum area
+Settings.Events.DisplacementThreshold = 0.30; %% has to be this percentage of the diameter of balls region
+Settings.Events.DisplacementFrameThreshold = 120;
+Settings.Events.SameColorProximityThreshold = Settings.MOT.RepulsionRadius; %% has to be the same as the radius used to calculate repulsion force
+Settings.Events.SameColorProximityFrameThreshold = 1; %% has to be the percentage of frames inside a half-second window in which there is proximity
+Settings.Events.SameColorTargetWithSameColorDistractor = 1;
+Settings.Events.MixingProximityDistanceThreshold = Settings.MOT.RepulsionRadius; %% has to be the same as the radius used to calculate repulsion force
+Settings.Events.MixingProximityFrameThreshold = 1; %% has to be the percentage of frames inside a half-second window in which there is proximity
+Settings.Events.MixingSweepThreshold = 360; %% has to be the total amount of degree traveled in the trajectory in a half-second window
+Settings.Events.MixingWindowsPerSecond = 2; 
+Settings.Events.MixingNoOverlappingWindows = 1;
+Settings.Events.MixingAllBalls = 0;
+Settings.Events.SelectedColor = 1;
+
+%% Events : Show
+Settings.Events.ShowEventsAtAll = 1;
+Settings.Events.JumpToEventsWindows = 1;
+Settings.Events.AreaEvents.Show = 0;
+Settings.Events.AreaEvents.Cue.Width = 40;
+Settings.Events.AreaEvents.Cue.Color = [ 200 30 30 ];
+Settings.Events.DisplacementEvents.Show = 0;
+Settings.Events.DisplacementEvents.Cue.Width = 35;
+Settings.Events.DisplacementEvents.Cue.Color = [ 250 150 30 ];
+Settings.Events.DisplacementEvents.Trajectory.Width = 1;
+Settings.Events.DisplacementEvents.Trajectory.Color = [255 255 255];
+Settings.Events.ColorMatchEvents.Show = 0; 
+Settings.Events.ColorMatchEvents.Cue.Width = 30; 
+Settings.Events.ColorMatchEvents.Cue.Color = [ 30 150 30 ];
+Settings.Events.MixingEvents.Show = 1; 
+Settings.Events.MixingEvents.Cue.Width = 25;
+Settings.Events.MixingEvents.Cue.Color = [ 50 50 255 ];
+Settings.Events.MixingEvents.Link.Width = 1;
+Settings.Events.MixingEvents.Link.Color = [ 255 255 255 ];
+Settings.Events.MixingEvents.TopEvents = 10;
+Settings.Events.Distractor.Show = 0;
+Settings.Events.Distractor.Cue.Width = 25;
+Settings.Events.Distractor.Cue.Color = [255 255 255];
+Settings.Events.ShowInSlowMotion = 1;
+Settings.Events.SlowMotionTime = ( 1/60 ) * 5;
+Settings.Events.RepulsionRadius.Color = [0 0 0];
+Settings.Events.Timer.Color = [255 255 255];
+Settings.Events.Thresholds.Color = [255 255 255]; %% color of the values below/above threshold
+
+%% current platform-specific response mapping
+KbName('UnifyKeyNames');
+Settings.Keyboard.Escape= KbName('escape');
+Settings.Keyboard.Space= KbName('space');
+Settings.Keyboard.Enter= KbName('return');
+Settings.Keyboard.Left= KbName('leftarrow');
+Settings.Keyboard.Right= KbName('rightarrow');
+Settings.Keyboard.Up= KbName('uparrow');
+Settings.Keyboard.Down= KbName('downarrow');
+Settings.Keyboard.tSmall= KbName('t');
+Settings.Keyboard.tCapital= KbName('T');
+Settings.Keyboard.ResponseStick_Top= KbName('1!');
+Settings.Keyboard.ResponseStick_Yellow= KbName('2@');
+Settings.Keyboard.ResponseStick_Green= KbName('3#');
+Settings.Keyboard.ResponseStick_Red= KbName('4');
+Settings.Keyboard.ResponseStick_Blue= KbName('6');
+Settings.Keyboard.ResponseBoxID = -1;
+Settings.Keyboard.LostTrack = KbName('uparrow');
+
+%% Screen
+Settings.Screen.UpperHalf = 0;
+Settings.Screen.DistanceCM= 70;   %% distance to screen, centimeters
+Settings.Screen.WidthCM= 40;      %% physical width of the screen, centimeters
+Settings.Screen.Gamma= 2.4;       %% gamma (ask Sasha or measure it)
+Settings.Screen.BackgroundLuminance= 0.3; %% single (gray luminance) or triplet, [0..1]
+Settings.Screen.WindowedSize= [150 150 450 200];	%% [left top right bottom]
+Settings.Screen.FullScreenSize= [1280 1024];      %% [width height]
+Settings.Screen.FPS= 120;          %% REMOVE LATER WHEN YOU HAVE RELIABLE ESTIMATE FROM PTB
+Settings.Screen.DefaultScreenID= 1; %% empty for a single screen
+Settings.Screen.FullScreen= 1 ;  %% 0 - windowed (with WindowedSize), 1 - full screen with FullScreenSize and FPS
+if (Settings.Screen.FullScreen) Settings.Screen.SkipSyncTest= 0; Settings.Screen.MeasureRealFPS= 1; else Settings.Screen.SkipSyncTest= 1; Settings.Screen.MeasureRealFPS= 0; end;
+if (Settings.Screen.UpperHalf == 0); Settings.Screen.CenterXY = Settings.Screen.FullScreenSize./2; else Settings.Screen.CenterXY = [Settings.Screen.FullScreenSize(1)/2 (Settings.Screen.FullScreenSize(2) - Settings.Screen.FullScreenSize(2)*(3/4) + 1)]; end 
+Settings.Screen.ScreenMode.hz = 60.0;
+
+%% eyetracker settings
+Settings.Eyelink.Use= 0;
+Settings.Eyelink.FileEventFilter=  'file_event_filter= LEFT,RIGHT,FIXATION,SACCADE,BLINK,MESSAGE,BUTTON';
+Settings.Eyelink.LinkSampleData= 'link_sample_data= LEFT,RIGHT,GAZE,GAZERES,AREA,STATUS,HTARGET';
+Settings.Eyelink.TrialsBetweenCalibration= 5;
+
+%% Fixation marker
+Settings.Fixation.Color= [255 255 255];
+Settings.Fixation.Size= 15;

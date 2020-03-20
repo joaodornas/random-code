@@ -1,0 +1,12 @@
+#!/usr/bin/csh -f
+
+
+sudo /home/admin/mrtrix3/release/bin/tckgen -algorithm Tensor_Prob -seed_image 7.FLIRT/cluster-264-complete.nii.gz -include 7.FLIRT/cluster-264-complete.nii.gz -number 0 -fslgrad 6.forbedpost/bvecs 6.forbedpost/bvals -nthreads 4 -info -maxnum 100000 6.forbedpost/data.nii.gz mrtrix/tck/cluster-264-TP-0-100000.tck
+
+sudo /home/admin/mrtrix3/release/bin/tckgen -algorithm Tensor_Prob -seed_image 7.FLIRT/cluster-266-complete.nii.gz -include 7.FLIRT/cluster-266-complete.nii.gz -number 0 -fslgrad 6.forbedpost/bvecs 6.forbedpost/bvals -nthreads 4 -info -maxnum 100000 6.forbedpost/data.nii.gz mrtrix/tck/cluster-266-TP-0-100000.tck
+
+sudo /home/admin/mrtrix3/release/bin/tckgen -algorithm Tensor_Prob -seed_image 7.FLIRT/cluster-511-complete.nii.gz -include 7.FLIRT/cluster-511-complete.nii.gz -number 0 -fslgrad 6.forbedpost/bvecs 6.forbedpost/bvals -nthreads 4 -info -maxnum 100000 6.forbedpost/data.nii.gz mrtrix/tck/cluster-511-TP-0-100000.tck
+
+sudo /home/admin/mrtrix3/release/bin/tckgen -algorithm Tensor_Prob -seed_image 7.FLIRT/cluster-358-complete.nii.gz -include 7.FLIRT/cluster-358-complete.nii.gz -number 0 -fslgrad 6.forbedpost/bvecs 6.forbedpost/bvals -nthreads 4 -info -maxnum 100000 6.forbedpost/data.nii.gz mrtrix/tck/cluster-358-TP-0-100000.tck
+
+sudo /home/admin/mrtrix3/release/bin/tckgen -algorithm Tensor_Prob -seed_image 7.FLIRT/cluster-573-complete.nii.gz -include 7.FLIRT/cluster-573-complete.nii.gz -number 0 -fslgrad 6.forbedpost/bvecs 6.forbedpost/bvals -nthreads 4 -info -maxnum 100000 6.forbedpost/data.nii.gz mrtrix/tck/cluster-573-TP-0-100000.tck

@@ -1,0 +1,9 @@
+#!/usr/bin/csh -f
+
+mkdir reg
+cp $FSLDIR/etc/flirtsch/ident.mat reg/example_func2highres.mat
+cp $FSLDIR/etc/flirtsch/ident.mat reg/highres2standard.mat
+imcp example_func reg/example_func
+imcp $FSLDIR/data/standard/MNI152_T1_2mm reg/highres
+imcp $FSLDIR/data/standard/MNI152_T1_2mm reg/standard
+updatefeatreg .

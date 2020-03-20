@@ -1,0 +1,17 @@
+function plotDistributionBoxPlot(data,label)
+
+color = [255 0 0]./255;
+
+f = figure;
+
+boxplot(data);
+h = findobj(gca,'tag','Median');
+set(h,'linestyle','-');
+set(h,'Color',color);
+,
+print(f,strcat(label,'.eps'),'-depsc')
+
+
+
+end
+

@@ -1,0 +1,12 @@
+#!/usr/bin/csh -f
+
+
+fslmaths cluster-264 -add cluster-397 cluster-264-397
+
+fslmaths cluster-266 -add cluster-543 cluster-266-543
+
+fslmaths cluster-511 -add cluster-526 cluster-511-526
+
+fslmaths cluster-573 -add cluster-362 cluster-573-362
+
+fslmaths cluster-358 -add cluster-564 cluster-358-564

@@ -1,0 +1,7 @@
+#!/usr/bin/csh -f
+
+fslmaths filtered_func_data_mcf_unwarp2standard.nii.gz -Tmean mean_func2standard
+
+bet2 mean_func2standard mask2standard -f 0.3 -n -m
+
+immv mask2standard_mask mask2standard

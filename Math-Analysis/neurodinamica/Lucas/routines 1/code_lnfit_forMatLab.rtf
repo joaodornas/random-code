@@ -1,0 +1,43 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww19760\viewh11780\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\fs26 \cf0 initialValuesPriebe=[scaling;prefSf;sigmaSf;prefTf;sigmaTf;skew;dependence];\
+[priebeParameters,priebeResiduals,priebeJacobian]=nlinfit(conditionMatrix,responseMatrix,@priebefit,initialValuesPriebe,statset('MaxIter',1000,'Display','iter'));
+\fs18 \
+
+\fs26 priebeParametersCI=nlparci(priebeParameters,priebeResiduals,priebeJacobian);\
+[priebePred,deltaPriebeCI] = nlpredci(@priebefit,conditionMatrix,priebeParameters,priebeResiduals,priebeJacobian);\
+nlintool(conditionMatrix,responseMatrix,@priebefit,initialValuesPriebe);\
+priebePredBounds=[responseMatrix priebePred deltaPriebeCI];\
+errorbar(responseMatrix,priebePred,deltaPriebeCI);\
+theta=deg2rad(theta);\
+initialValuesPerrone=[scaling;prefSf;sigmaSf;prefTf;sigmaTf;theta];\
+[perroneParameters,perroneResiduals,perroneJacobian]=nlinfit(conditionMatrix,responseMatrix,@perronefit,initialValuesPerrone,statset('MaxIter',1000,'Display','iter'));
+\fs18 \
+
+\fs26 perroneParametersCI=nlparci(perroneParameters,perroneResiduals,perroneJacobian);\
+[perronePred,deltaPerroneCI] = nlpredci(@perronefit,conditionMatrix,perroneParameters,perroneResiduals,perroneJacobian);\
+nlintool(conditionMatrix,responseMatrix,@perronefit,initialValuesPerrone);\
+perronePredBounds=[responseMatrix perronePred deltaPerroneCI];\
+errorbar(responseMatrix,perronePred,deltaPerroneCI);\
+ssePerrone=sum(perroneResiduals.^2);\
+ssePriebe=sum(priebeResiduals.^2);\
+meanResponse=mean(responseMatrix);\
+sst=sum((responseMatrix-meanResponse).^2);\
+n=size(responseMatrix,1);\
+pPriebe=size(priebeParameters,1);\
+pPerrone=size(perroneParameters,1);\
+rsquaredPriebe=1-(ssePriebe/sst)\
+adj_rsquaredPriebe=1-((ssePriebe/(n-pPriebe-1))/(sst/(n-1)))\
+priebeAIC=n*log(ssePriebe/n)+2*pPriebe\
+priebeAICc=priebeAIC+((2*(pPriebe+2)*(pPriebe+3))/(n-pPriebe-3))\
+rsquaredPerrone=1-(ssePerrone/sst)\
+adj_rsquaredPerrone=1-((ssePerrone/(n-pPerrone-1))/(sst/(n-1)))\
+perroneAIC=n*log(ssePerrone/n)+2*pPerrone\
+perroneAICc=perroneAIC+((2*(pPerrone+2)*(pPerrone+3))/(n-pPerrone-3))\
+priebeParameters\
+perroneParameters\
+}

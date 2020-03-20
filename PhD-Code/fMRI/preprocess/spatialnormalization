@@ -1,0 +1,252 @@
+#!/usr/bin/csh -f
+
+set fileroot = /home/fsl/Dropbox/_DATA/LOW-HIGH-ATTENTION/Elena-29-05-2015/preprocessed
+set FieldMapDir = $fileroot/B0-Field-Map/0.original
+set AnatomicalDir = $fileroot/T1-Anatomical/Run-1-0/FSL/final
+set FunctionalDir = $fileroot/T2-Stimulus-MOT-4-Balls/Run-1-1/FSL/4D-original
+ 
+set FieldMapFile = fmap_rads
+set FieldMapMagnitude = 20150529_100437grefieldmappings009a1001
+set AnatomicalFile = 20150529_100437T1MPRAGE1x1x1sagp2s002a1001
+set func_data = MOT4-Run1_brain
+
+set nVolumes = 331
+
+## GET THE MIDDLE VOLUME INSIDE THE PREFILTERED_FUNC_DATA 4-D IMAGE
+fslroi $FunctionalDir/$func_data example_func 165 1
+
+fslmaths example_func EF_D_example_func
+
+### PROCESS FIELD MAP
+
+fslmaths $FieldMapDir/$FieldMapFile FM_UD_fmap
+
+fslmaths $FieldMapDir/$FieldMapMagnitude{_brain} FM_UD_fmap_mag_brain
+
+fslmaths $FieldMapDir/$FieldMapMagnitude FM_UD_fmap_mag
+
+fslstats FM_UD_fmap_mag_brain -V | awk '{ print $1 }'
+
+fslstats FM_UD_fmap_mag_brain -v | awk '{ print $1 }'
+
+fslmaths FM_UD_fmap_mag_brain -bin FM_UD_fmap_mag_brain_mask -odt short
+
+fslmaths FM_UD_fmap -abs -bin -mas FM_UD_fmap_mag_brain_mask -mul -1 -add 1 -bin FM_UD_fmap_mag_brain_mask_inv
+
+cluster -i FM_UD_fmap_mag_brain_mask_inv -t 0.5 --no_table -o FM_UD_fmap_mag_brain_mask_idx
+
+fslstats FM_UD_fmap_mag_brain_mask_idx -R | awk '{ print $2 }'
+
+fslmaths FM_UD_fmap_mag_brain_mask_idx -thr 657.000000 -bin -mul -1 -add 1 -bin -mas FM_UD_fmap_mag_brain_mask FM_UD_fmap_mag_brain_mask
+
+fslstats FM_UD_fmap -k FM_UD_fmap_mag_brain_mask -P 50
+
+fslmaths FM_UD_fmap -sub 0.623535 -mas FM_UD_fmap_mag_brain_mask FM_UD_fmap
+
+fslstats FM_UD_fmap_mag_brain -P 98
+
+fslmaths FM_UD_fmap_mag_brain -thr 261 -bin FM_UD_fmap_mag_brain_mask50
+
+fslmaths FM_UD_fmap_mag_brain_mask -ero FM_UD_fmap_mag_brain_mask_ero
+
+fslmaths FM_UD_fmap_mag_brain_mask_ero -add FM_UD_fmap_mag_brain_mask50 -thr 0.5 -bin FM_UD_fmap_mag_brain_mask
+
+fslmaths FM_UD_fmap -mas FM_UD_fmap_mag_brain_mask FM_UD_fmap
+
+fslmaths FM_UD_fmap_mag_brain -mas FM_UD_fmap_mag_brain_mask FM_UD_fmap_mag_brain
+
+fslmaths FM_UD_fmap_mag_brain_mask -ero FM_UD_fmap_mag_brain_mask_ero
+
+fugue --loadfmap=FM_UD_fmap --savefmap=FM_UD_fmap_tmp_fmapfilt --mask=FM_UD_fmap_mag_brain_mask --despike --despikethreshold=2.1
+
+fslmaths FM_UD_fmap -sub FM_UD_fmap_tmp_fmapfilt -mas FM_UD_fmap_mag_brain_mask_ero -add FM_UD_fmap_tmp_fmapfilt FM_UD_fmap
+
+rm -f FM_UD_fmap_tmp_fmapfilt* FM_UD_fmap_mag_brain_mask_ero* FM_UD_fmap_mag_brain_mask50* FM_UD_fmap_mag_brain_i*
+
+fslstats FM_UD_fmap -k FM_UD_fmap_mag_brain_mask -P 50
+
+fslmaths FM_UD_fmap -sub 1.870606 -mas FM_UD_fmap_mag_brain_mask FM_UD_fmap
+
+fslstats FM_UD_fmap -R | awk '{ print $1 }'
+
+fslmaths FM_UD_fmap -sub -1474.118896 -add 10 -mas FM_UD_fmap_mag_brain_mask grot
+
+fslstats grot -l 1 -p 0.1 -p 95
+
+overlay 0 0 FM_UD_fmap_mag -a grot 737.707031 1663.706787 fmap+mag
+
+slicer fmap+mag -s 3 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png fmap+mag.png; rm -f sl?.png
+
+sigloss -i FM_UD_fmap --te=0.03 -m FM_UD_fmap_mag_brain_mask -s FM_UD_fmap_sigloss
+
+fslmaths FM_UD_fmap_sigloss -mul FM_UD_fmap_mag_brain FM_UD_fmap_mag_brain_siglossed -odt float
+
+fslmaths FM_UD_fmap_sigloss -thr 0.9 FM_UD_fmap_sigloss -odt float
+
+overlay 1 0 FM_UD_fmap_mag_brain -a FM_UD_fmap_sigloss 0 1 FM_UD_sigloss+mag
+
+slicer FM_UD_sigloss+mag -s 3 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png FM_UD_sigloss+mag.png; rm -f sl?.png
+
+## CO-REGISTRATION
+
+fslmaths $AnatomicalDir/$AnatomicalFile{_brain} highres
+
+fslmaths $AnatomicalDir/$AnatomicalFile highres_head
+
+fslmaths $AnatomicalDir/$AnatomicalFile{_brain_wmseg} highres_wmseg
+
+fslmaths /usr/local/fsl/data/standard/MNI152_T1_2mm_brain standard
+
+fslmaths /usr/local/fsl/data/standard/MNI152_T1_2mm standard_head
+
+fslmaths /usr/local/fsl/data/standard/MNI152_T1_2mm_brain_mask_dil standard_mask
+
+epi_reg --epi=example_func --t1=highres_head --t1brain=highres --out=example_func2highres --fmap=FM_UD_fmap --fmapmag=FM_UD_fmap_mag --fmapmagbrain=FM_UD_fmap_mag_brain --echospacing=0.00022 --pedir=y-
+
+mv example_func2highres_fieldmap2str.mat FM_UD_fmap_mag_brain2str.mat
+
+mv example_func2highres_fieldmaprads2epi.mat FM_UD_fmap2epi.mat
+
+immv example_func2highres_fieldmaprads2epi_shift FM_UD_fmap2epi_shift
+
+immv example_func2highres_fieldmap2str FM_UD_fmap_mag_brain2str
+
+fslstats FM_UD_fmap2epi_shift -R -P 1 -P 99
+
+flirt -ref example_func -in FM_UD_fmap_mag_brain -applyxfm -init FM_UD_fmap2epi.mat -out EF_UD_fmap_mag_brain
+
+fslmaths FM_UD_fmap2epi_shift -mul -1 grot
+
+overlay 1 0 EF_UD_fmap_mag_brain -a FM_UD_fmap2epi_shift 0.0001 2.439218 grot 0.0001 1.20681 EF_UD_shift+mag
+
+slicer EF_UD_shift+mag -s 3 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png EF_UD_shift+mag.png; rm -f sl?.png
+
+cp -f /usr/local/fsl/etc/luts/ramp.gif .ramp.gif
+
+cp -f /usr/local/fsl/etc/luts/ramp2.gif .ramp2.gif
+
+overlay 0 0 FM_UD_fmap_mag_brain2str -a example_func2highres_fast_wmedge 0.001 5 fieldmap2edges
+
+slicer fieldmap2edges -s 3 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png fieldmap2edges.png; rm -f sl?.png
+
+slicer FM_UD_fmap_mag_brain2str highres -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png FM_UD_fmap_mag_brain2str1.png
+slicer highres FM_UD_fmap_mag_brain2str -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png FM_UD_fmap_mag_brain2str2.png
+pngappend FM_UD_fmap_mag_brain2str1.png - FM_UD_fmap_mag_brain2str2.png FM_UD_fmap_mag_brain2str.png; rm -f sl?.png FM_UD_fmap_mag_brain2str2.png
+
+rm -f FM_UD_fmap_mag_brain2str1.png
+
+flirt -ref highres -in example_func -out example_func_distorted2highres -applyxfm -init example_func2highres.mat -interp trilinear 
+
+slicer example_func_distorted2highres highres -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func_distorted2highres1.png
+slicer highres example_func_distorted2highres -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func_distorted2highres2.png
+pngappend example_func_distorted2highres1.png - example_func_distorted2highres2.png example_func_distorted2highres.png; rm -f sl?.png example_func_distorted2highres2.png
+
+rm -f example_func_distorted2highres1.png
+
+slicer example_func2highres highres -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func2highres1.png 
+slicer highres example_func2highres -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func2highres2.png
+pngappend example_func2highres1.png - example_func2highres2.png example_func2highres.png; rm -f sl?.png example_func2highres2.png
+
+rm -f example_func2highres1.png
+
+convert_xfm -inverse -omat highres2example_func.mat example_func2highres.mat 
+
+applywarp -i example_func2highres -r example_func --premat=highres2example_func.mat -o example_func_undistorted
+
+overlay  0 0 example_func_distorted2highres -a example_func2highres_fast_wmedge 0.001 10 grot
+
+slicer grot   -s 3 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png EF_D_edges.gif
+
+overlay  0 0 example_func2highres -a example_func2highres_fast_wmedge 0.001 10 grot
+
+slicer grot -s 3 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png EF_U_edges.gif
+
+whirlgif -o EF_UD_movie.gif -time 50 -loop 0 EF_D_edges.gif EF_U_edges.gif 2>&1
+rm -f sla* slb* slc* sld* sle* slf* slg* slh* sli* slj* slk* sll* grot*
+
+imcp example_func_undistorted example_func
+
+convert_xfm -inverse -omat highres2example_func.mat example_func2highres.mat
+
+slicer example_func2highres highres -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func2highres1.png
+slicer highres example_func2highres -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func2highres2.png
+pngappend example_func2highres1.png - example_func2highres2.png example_func2highres.png; rm -f sl?.png example_func2highres2.png
+
+rm -f example_func2highres1.png
+
+## ANATOMMICAL2STANDARD WARP
+
+flirt -in highres -ref standard -out highres2standard -omat highres2standard.mat -cost corratio -dof 12 -searchrx -90 90 -searchry -90 90 -searchrz -90 90 -interp trilinear 
+
+fnirt --iout=highres2standard_head --in=highres_head --aff=highres2standard.mat --cout=highres2standard_warp --iout=highres2standard --jout=highres2highres_jac --config=T1_2_MNI152_2mm --ref=standard_head --refmask=standard_mask --warpres=10,10,10
+
+applywarp -i highres -r standard -o highres2standard -w highres2standard_warp
+
+convert_xfm -inverse -omat standard2highres.mat highres2standard.mat
+
+slicer highres2standard standard -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png highres2standard1.png
+slicer standard highres2standard -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png highres2standard2.png
+pngappend highres2standard1.png - highres2standard2.png highres2standard.png; rm -f sl?.png highres2standard2.png
+
+rm -f highres2standard1.png
+
+## FUNCTIONAL2STANDARD WARP
+
+convert_xfm -omat example_func2standard.mat -concat highres2standard.mat example_func2highres.mat
+
+convertwarp --ref=standard --premat=example_func2highres.mat --warp1=highres2standard_warp --out=example_func2standard_warp
+
+applywarp --ref=standard --in=example_func --out=example_func2standard --warp=example_func2standard_warp
+
+convert_xfm -inverse -omat standard2example_func.mat example_func2standard.mat
+
+slicer example_func2standard standard -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func2standard1.png
+slicer standard example_func2standard -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func2standard2.png
+pngappend example_func2standard1.png - example_func2standard2.png example_func2standard.png; rm -f sl?.png example_func2standard2.png
+
+imcp example_func example_func_distorted
+
+## MOTION CORRECTION
+
+mcflirt -in $FunctionalDir/$func_data -out $func_data{_mcf} -mats -plots -reffile EF_D_example_func -rmsrel -rmsabs -spline_final
+
+## UNWARP
+
+applywarp -i FM_UD_fmap_mag_brain_mask -r example_func --rel --premat=FM_UD_fmap_mag_brain2str.mat --postmat=highres2example_func.mat -o EF_UD_fmap_mag_brain_mask
+
+fslsplit $FunctionalDir/$func_data vol
+
+set j = 0
+
+while ( $j < $nVolumes )
+
+	if ( $j < 10 ) then
+		set iVolume = 000$j
+	else if ( $j >= 10 && $j < 100 ) then
+		set iVolume = 00$j
+	else if ( $j >= 100 ) then
+		set iVolume = 0$j
+	endif
+	
+	applywarp -i vol$iVolume -o grot$iVolume --premat=$func_data{_mcf.mat}/MAT_0000 -w example_func2highres_warp.nii.gz -r example_func --rel --postmat=highres2example_func.mat --interp=spline
+
+	@ j++
+	
+end
+
+fslmerge -t $func_data{_unwarp} grot0000   grot0001   grot0002   grot0003   grot0004   grot0005   grot0006   grot0007   grot0008   grot0009   grot0010   grot0011   grot0012   grot0013   grot0014   grot0015   grot0016   grot0017   grot0018   grot0019   grot0020   grot0021   grot0022   grot0023   grot0024   grot0025   grot0026   grot0027   grot0028   grot0029   grot0030   grot0031   grot0032   grot0033   grot0034   grot0035   grot0036   grot0037   grot0038   grot0039   grot0040   grot0041   grot0042   grot0043   grot0044   grot0045   grot0046   grot0047   grot0048   grot0049   grot0050   grot0051   grot0052   grot0053   grot0054   grot0055   grot0056   grot0057   grot0058   grot0059   grot0060   grot0061   grot0062   grot0063   grot0064   grot0065   grot0066   grot0067   grot0068   grot0069   grot0070   grot0071   grot0072   grot0073   grot0074   grot0075   grot0076   grot0077   grot0078   grot0079   grot0080   grot0081   grot0082   grot0083   grot0084   grot0085   grot0086   grot0087   grot0088   grot0089   grot0090   grot0091   grot0092   grot0093   grot0094   grot0095   grot0096   grot0097   grot0098   grot0099   grot0100   grot0101   grot0102   grot0103   grot0104   grot0105   grot0106   grot0107   grot0108   grot0109   grot0110   grot0111   grot0112   grot0113   grot0114   grot0115   grot0116   grot0117   grot0118   grot0119   grot0120   grot0121   grot0122   grot0123   grot0124   grot0125   grot0126   grot0127   grot0128   grot0129   grot0130   grot0131   grot0132   grot0133   grot0134   grot0135   grot0136   grot0137   grot0138   grot0139   grot0140   grot0141   grot0142   grot0143   grot0144   grot0145   grot0146   grot0147   grot0148   grot0149   grot0150   grot0151   grot0152   grot0153   grot0154   grot0155   grot0156   grot0157   grot0158   grot0159   grot0160   grot0161   grot0162   grot0163   grot0164   grot0165   grot0166   grot0167   grot0168   grot0169   grot0170   grot0171   grot0172   grot0173   grot0174   grot0175   grot0176   grot0177   grot0178   grot0179   grot0180   grot0181   grot0182   grot0183   grot0184   grot0185   grot0186   grot0187   grot0188   grot0189   grot0190   grot0191   grot0192   grot0193   grot0194   grot0195   grot0196   grot0197   grot0198   grot0199   grot0200   grot0201   grot0202   grot0203   grot0204   grot0205   grot0206   grot0207   grot0208   grot0209   grot0210   grot0211   grot0212   grot0213   grot0214   grot0215   grot0216   grot0217   grot0218   grot0219   grot0220   grot0221   grot0222   grot0223   grot0224   grot0225   grot0226   grot0227   grot0228   grot0229   grot0230   grot0231   grot0232   grot0233   grot0234   grot0235   grot0236   grot0237   grot0238   grot0239   grot0240   grot0241   grot0242   grot0243   grot0244   grot0245   grot0246   grot0247   grot0248   grot0249   grot0250   grot0251   grot0252   grot0253   grot0254   grot0255   grot0256   grot0257   grot0258   grot0259   grot0260   grot0261   grot0262   grot0263   grot0264   grot0265   grot0266   grot0267   grot0268   grot0269   grot0270   grot0271   grot0272   grot0273   grot0274   grot0275   grot0276   grot0277   grot0278   grot0279   grot0280   grot0281   grot0282   grot0283   grot0284   grot0285   grot0286   grot0287   grot0288   grot0289   grot0290   grot0291   grot0292   grot0293   grot0294   grot0295   grot0296   grot0297   grot0298   grot0299   grot0300   grot0301   grot0302   grot0303   grot0304   grot0305   grot0306   grot0307   grot0308   grot0309   grot0310   grot0311   grot0312   grot0313   grot0314   grot0315   grot0316   grot0317   grot0318   grot0319   grot0320   grot0321   grot0322   grot0323   grot0324   grot0325   grot0326   grot0327   grot0328   grot0329   grot0330
+
+rm -f grot* vol*
+
+## FUNCTIONAL{_UNWARPED}2STANDARD WARP
+
+applywarp --ref=standard --in=$func_data{_unwarp} --out=$func_data{_unwarp2standard} --warp=example_func2standard_warp
+
+fslroi $func_data{_unwarp2standard} example_func_unwarp2standard 165 1
+
+slicer example_func_unwarp2standard standard -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func_unwarp2standard1.png
+slicer standard example_func_unwarp2standard -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png example_func_unwarp2standard2.png
+pngappend example_func_unwarp2standard1.png - example_func_unwarp2standard2.png example_func_unwarp2standard.png; rm -f sl?.png example_func_unwarp2standard2.png
+
+
+

@@ -1,0 +1,51 @@
+#!/usr/bin/csh -f
+
+### SUBJ3
+
+set dtiAP_data = 20151103_074051DTI13716isob2000sms2APs016a001
+set dtiPA_data = 20151103_074051DTI13716isob2000sms2PAs019a001
+
+fslroi ../0.original/$dtiAP_data dti_b0_1_1 0 1
+
+fslroi ../0.original/$dtiAP_data dti_b0_1_2 1 1
+
+fslroi ../0.original/$dtiAP_data dti_b0_1_19 18 1
+
+fslroi ../0.original/$dtiAP_data dti_b0_1_36 35 1
+
+fslroi ../0.original/$dtiAP_data dti_b0_1_53 52 1
+
+fslroi ../0.original/$dtiAP_data dti_b0_1_70 69 1
+
+fslroi ../0.original/$dtiAP_data dti_b0_1_87 86 1
+
+fslroi ../0.original/$dtiAP_data dti_b0_1_104 103 1
+
+fslroi ../0.original/$dtiAP_data dti_b0_1_121 120 1
+
+fslroi ../0.original/$dtiAP_data dti_b0_1_138 137 1
+
+fslroi ../0.original/$dtiPA_data dti_b0_2_1 0 1
+
+fslroi ../0.original/$dtiPA_data dti_b0_2_2 1 1
+
+fslroi ../0.original/$dtiPA_data dti_b0_2_19 18 1
+
+fslroi ../0.original/$dtiPA_data dti_b0_2_36 35 1
+
+fslroi ../0.original/$dtiPA_data dti_b0_2_53 52 1
+
+fslroi ../0.original/$dtiPA_data dti_b0_2_70 69 1
+
+fslroi ../0.original/$dtiPA_data dti_b0_2_87 86 1
+
+fslroi ../0.original/$dtiPA_data dti_b0_2_104 103 1
+
+fslroi ../0.original/$dtiPA_data dti_b0_2_121 120 1
+
+fslroi ../0.original/$dtiPA_data dti_b0_2_138 137 1
+
+fslmerge -t dti_b0_both dti_b0_1_1 dti_b0_1_2 dti_b0_1_19 dti_b0_1_36 dti_b0_1_53 dti_b0_1_70 dti_b0_1_87 dti_b0_1_104 dti_b0_1_121 dti_b0_1_138 dti_b0_2_1 dti_b0_2_2 dti_b0_2_19 dti_b0_2_36 dti_b0_2_53 dti_b0_2_70 dti_b0_2_87 dti_b0_2_104 dti_b0_2_121 dti_b0_2_138
+
+
+
